@@ -13,8 +13,6 @@
 		EndsWith,
 		NotEndsWith,
 		In,
-		NotIn,
-		And,
-		Or
+		NotIn
 	}
 }

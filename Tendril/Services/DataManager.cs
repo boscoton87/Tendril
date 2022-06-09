@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Tendril.Exceptions;
 using Tendril.Models;
-using Tendril.Models.Interfaces;
 using Tendril.Services.Interfaces;
 
 namespace Tendril.Services {

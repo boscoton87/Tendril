@@ -1,7 +1,5 @@
-﻿using Tendril.Enums;
-
-namespace Tendril.Models {
+﻿namespace Tendril.Models {
 	public class AndFilterChip : FilterChip {
-		public AndFilterChip( params FilterChip[] filterChips ) : base( string.Empty, FilterOperator.And, filterChips ) { }
+		public AndFilterChip( params FilterChip[] filterChips ) : base( string.Empty, null, filterChips ) { }
 	}
 }

@@ -5,8 +5,6 @@ namespace Tendril.InMemory.Models {
 	public class InMemoryDataSource : IDisposable {
 		public Dictionary<Type, Dictionary<IComparable, object>> Cache { get; } = new Dictionary<Type, Dictionary<IComparable, object>>();
 
-		public void Dispose() {
-			
-		}
+		public void Dispose() { }
 	}
 }

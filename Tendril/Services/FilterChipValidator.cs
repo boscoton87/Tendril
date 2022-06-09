@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tendril.Enums;
+using Tendril.Models;
 
-namespace Tendril.Models {
+namespace Tendril.Services {
 	public class FilterChipValidator {
 		private delegate ValidationResult ValidationStep( IEnumerable<FilterChip> filters, Dictionary<FilterChip, bool> filtersHit );
 
@@ -76,7 +77,7 @@ namespace Tendril.Models {
 				throw new ArgumentException( "minValueCount must be greater than or equal to 1" );
 			}
 			ValidationResult step( IEnumerable<FilterChip> filters, Dictionary<FilterChip, bool> filtersHit ) {
-				var foundFilters = filters.Where( f => f != null && f.Field == field && supportedOperators.Contains( f.Operator ) ).ToList();
+				var foundFilters = filters.Where( f => f != null && f.Field == field && f.Operator.HasValue && supportedOperators.Contains( f.Operator.Value ) ).ToList();
 				if ( required && !foundFilters.Any() ) {
 					return new ValidationResult { IsSuccess = false, Message = $"{field} filter was not provided" };
 				}

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Tendril.Services;
 
-namespace Tendril.Models {
+namespace Tendril.Services {
 	public class DataSourceContext<TDataSource> where TDataSource : IDisposable {
 		internal DataManager DataManager { get; init; }
 

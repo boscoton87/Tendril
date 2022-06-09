@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Tendril.Models;
 
-namespace Tendril.Models.Interfaces {
+namespace Tendril.Services.Interfaces {
 	internal interface IDataCollection {
 		public IDisposable GetDataContext();
 

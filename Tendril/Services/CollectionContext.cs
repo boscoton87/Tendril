@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Tendril.Models.Interfaces;
+using Tendril.Models;
+using Tendril.Services.Interfaces;
 
-namespace Tendril.Models {
+namespace Tendril.Services {
 	internal class CollectionContext<TCollection, TDataSource, TModel> : IDataCollection
 		where TCollection : class
 		where TDataSource : class, IDisposable

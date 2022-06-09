@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
 using Tendril.Enums;
 using Tendril.Models;
+using Tendril.Services;
 
-namespace Tendril.Test.Models {
+namespace Tendril.Test.Services {
 	[TestFixture]
 	public class FilterChipValidatorTests {
 		private FilterChipValidator _validator;

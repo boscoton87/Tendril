@@ -5,7 +5,12 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tendril", "Tendril\Tendril.csproj", "{345D7C0B-26A1-4DD3-B1F6-94D1E650BA21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tendril.Test", "Tendril.Test\Tendril.Test.csproj", "{5638E642-6FF3-432F-9E22-F0AF9158B618}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tendril.Test", "Tendril.Test\Tendril.Test.csproj", "{5638E642-6FF3-432F-9E22-F0AF9158B618}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A965D5E0-282C-4D3B-827A-3A25F8B51B19}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
