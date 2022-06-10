@@ -31,7 +31,7 @@ namespace Tendril.Test.Mocks.Models {
 					.WithDbSet(
 						s => s.Id,
 						s => s.Id = nextKey++,
-						new FilterChipValidator()
+						new FilterChipValidatorService()
 							.HasDistinctFields()
 							.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
 							.HasFilterType<int>( "Id", false, 1, 10, FilterOperator.In, FilterOperator.NotIn )

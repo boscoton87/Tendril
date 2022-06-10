@@ -6,11 +6,11 @@ using Tendril.Services;
 namespace Tendril.Test.Services {
 	[TestFixture]
 	public class FilterChipValidatorTests {
-		private FilterChipValidator _validator;
+		private FilterChipValidatorService _validator;
 
 		[SetUp]
 		public void Initialize() {
-			_validator = new FilterChipValidator()
+			_validator = new FilterChipValidatorService()
 				.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
 				.HasFilterType<int>( "Id", false, 2, 3, FilterOperator.In, FilterOperator.NotIn )
 				.HasFilterType<string>(
