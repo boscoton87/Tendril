@@ -8,7 +8,7 @@ using Tendril.Services.Interfaces;
 
 namespace Tendril.Services {
 	/// <summary>
-	/// Service class which provides a CRUD interface to registered data collections<br />
+	/// Service class which provides a CRUD interface to registered data collections
 	/// </summary>
 	public class DataManager : IDataManager {
 		internal Dictionary<Type, object> TDataSourceToDataSourceContext { get; }
