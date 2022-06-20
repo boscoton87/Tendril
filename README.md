@@ -20,7 +20,7 @@ public class StudentDbContext : DbContext {
 	public DbSet<Student> Students { get; set; }
 }
 
-var findByFilterService = new LinqFindByFilterService&lt;Student&gt;()
+var findByFilterService = new LinqFindByFilterService<Student>()
 	.WithFilterDefinition( "Id", FilterOperator.EqualTo, v => s => s.Id == ( ( int ) v.First() ) )
 	.WithFilterDefinition( "Name", FilterOperator.StartsWith, v => s => s.Name.StartsWith( v.Single() as string ) )
 	.WithFilterDefinition( "Name", FilterOperator.EqualTo, v => s => s.Name == ( v.Single() as string ) )
