@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Tendril.Models;
 using Tendril.Services.Interfaces;
 
@@ -52,8 +51,8 @@ namespace Tendril.Services {
 			_findByFilter = findByFilter;
 		}
 
-		public async Task<IEnumerable<TEntity>> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class {
-			return await _executeRawQuery( _getCollection( dataSource as TDataSource ), query, parameters ).Select( d => d as TEntity ).ToListAsync();
+		public IQueryable<TEntity> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class {
+			return _executeRawQuery( _getCollection( dataSource as TDataSource ), query, parameters ).Select( d => d as TEntity );
 		}
 
 		public TEntity Add<TEntity>( object dataSource, TEntity entity ) where TEntity : class {

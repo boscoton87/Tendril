@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Tendril.Models;
 
@@ -9,7 +10,7 @@ namespace Tendril.Services.Interfaces {
 
 		public Task SaveChangesAsync( object dataSource );
 
-		public Task<IEnumerable<TEntity>> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class;
+		public IQueryable<TEntity> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class;
 
 		public TEntity Add<TEntity>( object dataSource, TEntity entity ) where TEntity : class;
 

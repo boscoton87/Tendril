@@ -150,10 +150,10 @@ namespace Tendril.Services {
 		/// <param name="query">The raw query to execute</param>
 		/// <param name="parameters">params style array of query parameters to use</param>
 		/// <returns>Resulting dataset</returns>
-		public async Task<IEnumerable<TModel>> ExecuteRawQuery<TModel>( string query, params object[] parameters ) where TModel : class {
+		public IQueryable<TModel> ExecuteRawQuery<TModel>( string query, params object[] parameters ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
 			using var dataContext = collectionContext.GetDataContext();
-			return await collectionContext.ExecuteRawQuery<TModel>( dataContext, query, parameters );
+			return collectionContext.ExecuteRawQuery<TModel>( dataContext, query, parameters );
 		}
 
 		private IDataCollection GetCollectionContext<TModel>() where TModel : class {

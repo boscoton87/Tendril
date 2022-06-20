@@ -31,8 +31,10 @@
 		</None>
 	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Tendril\Tendril.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.6" />
+	  <PackageReference Include="Tendril" Version="0.2.0" />
+	</ItemGroup>
 
 </Project>

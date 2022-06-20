@@ -26,17 +26,18 @@ var findByFilterService = new LinqFindByFilterService<Student>()
 	.WithFilterDefinition( "Name", FilterOperator.EqualTo, v => s => s.Name == ( v.Single() as string ) )
 	.WithFilterDefinition( "Name", FilterOperator.EndsWith, v => s => s.Name.EndsWith( v.Single() as string ) );
 
+var filterValidator = new FilterChipValidatorService()
+	.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo )
+	.HasFilterType<string>(
+		"Name", false, 1, 1,
+		FilterOperator.StartsWith, FilterOperator.EqualTo, FilterOperator.EndsWith
+	);
+
 var dataManager = new DataManager()
 	.WithDbContext( () => new StudentDbContext( new DbContextOptions() ) )
 		.WithDbSet(
 			db => db.Students,
-			new FilterChipValidatorService()
-				.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo )
-				.HasFilterType<string>(
-					"Name", false, 1, 1,
-					FilterOperator.StartsWith, FilterOperator.EqualTo, FilterOperator.EndsWith
-				)
-				.ValidateFilters,
+			filterValidator.ValidateFilters,
 			async ( dbSet, filter, page, pageSize ) =>
 				await findByFilterService.FindByFilter( dbSet, filter, page, pageSize ).ToListAsync()
 		);

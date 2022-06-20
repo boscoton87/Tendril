@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Tendril.Models;
 using Tendril.Exceptions;
+using System.Linq;
 
 namespace Tendril.Services.Interfaces {
 	/// <summary>
@@ -107,6 +108,6 @@ namespace Tendril.Services.Interfaces {
 		/// <param name="query">The raw query to execute</param>
 		/// <param name="parameters">params style array of query parameters to use</param>
 		/// <returns>Resulting dataset</returns>
-		Task<IEnumerable<TModel>> ExecuteRawQuery<TModel>( string query, params object[] parameters ) where TModel : class;
+		IQueryable<TModel> ExecuteRawQuery<TModel>( string query, params object[] parameters ) where TModel : class;
 	}
 }
