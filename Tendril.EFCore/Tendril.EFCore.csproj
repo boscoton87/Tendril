@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>0.1.0</Version>
-    <Authors>Boscoton87</Authors>
+    <Authors>Impactus</Authors>
     <Description>Tendril.EFCore provides registration logic to use EFCore as the backing datasource for Tendril</Description>
     <PackageProjectUrl>https://github.com/boscoton87/Tendril</PackageProjectUrl>
     <PackageIcon>tendril_icon.png</PackageIcon>
