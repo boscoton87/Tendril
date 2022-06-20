@@ -11,8 +11,9 @@ namespace Tendril.Services {
 	/// Service class which provides a CRUD interface to registered data collections
 	/// </summary>
 	public class DataManager : IDataManager {
-		internal Dictionary<Type, object> TDataSourceToDataSourceContext { get; }
-		internal Dictionary<Type, IDataCollection> TModelToCollectionContext { get; }
+		public Dictionary<Type, object> TDataSourceToDataSourceContext { get; }
+
+		public Dictionary<Type, IDataCollection> TModelToCollectionContext { get; }
 
 		public DataManager() {
 			TDataSourceToDataSourceContext = new Dictionary<Type, object>();
@@ -112,10 +113,10 @@ namespace Tendril.Services {
 		/// );
 		/// </code>
 		/// </summary>
-		/// <typeparam name="TModel"></typeparam>
-		/// <param name="filter"></param>
-		/// <param name="page"></param>
-		/// <param name="pageSize"></param>
+		/// <typeparam name="TModel">The type of model</typeparam>
+		/// <param name="filter">The filter to use for the query</param>
+		/// <param name="page">The page of data to be returned, starting at 0. If null, no pagination will occur</param>
+		/// <param name="pageSize">PageSize of data to be returned. If null, no pagination will occur</param>
 		/// <returns>Resulting dataset</returns>
 		/// <exception cref="UnsupportedFilterException"></exception>
 		public async Task<IEnumerable<TModel>> FindByFilter<TModel>(

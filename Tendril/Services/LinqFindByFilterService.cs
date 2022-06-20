@@ -34,7 +34,7 @@ namespace Tendril.Services {
 	/// 
 	/// </code>
 	/// </summary>
-	/// <typeparam name="TModel"></typeparam>
+	/// <typeparam name="TModel">The type of model</typeparam>
 	public class LinqFindByFilterService<TModel> where TModel : class {
 		/// <summary>
 		/// Delegate that defines the shape for converting FilterChip value object arrays into a linq expression<br />

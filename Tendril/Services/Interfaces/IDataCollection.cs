@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tendril.Models;
 
 namespace Tendril.Services.Interfaces {
-	internal interface IDataCollection {
+	public interface IDataCollection {
 		public IDisposable GetDataContext();
 
 		public Task SaveChangesAsync( object dataSource );

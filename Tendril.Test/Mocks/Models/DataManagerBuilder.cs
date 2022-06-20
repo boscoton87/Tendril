@@ -1,5 +1,6 @@
 ﻿using Tendril.Enums;
 using Tendril.InMemory.Extensions;
+using Tendril.InMemory.Services;
 using Tendril.Services;
 
 namespace Tendril.Test.Mocks.Models {
@@ -24,13 +25,13 @@ namespace Tendril.Test.Mocks.Models {
 				.WithFilterDefinition( "DateOfBirth", FilterOperator.LessThanOrEqualTo, v => s => s.DateOfBirth <= ( DateTime ) v.Single() )
 				.WithFilterDefinition( "DateOfBirth", FilterOperator.GreaterThan, v => s => s.DateOfBirth > ( DateTime ) v.Single() )
 				.WithFilterDefinition( "DateOfBirth", FilterOperator.GreaterThanOrEqualTo, v => s => s.DateOfBirth >= ( DateTime ) v.Single() );
-			var nextKey = 1;
 			var dataManager = new DataManager();
 			dataManager
 				.WithInMemoryCache()
 					.WithDbSet(
 						s => s.Id,
-						s => s.Id = nextKey++,
+						( k, s ) => s.Id = k,
+						new KeyGeneratorSequential<Student, int>( ( k, _ ) => k + 1 ),
 						new FilterChipValidatorService()
 							.HasDistinctFields()
 							.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )

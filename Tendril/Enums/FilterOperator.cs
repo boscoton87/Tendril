@@ -1,4 +1,7 @@
 ﻿namespace Tendril.Enums {
+	/// <summary>
+	/// Enum that states which type of filter operation to perform
+	/// </summary>
 	public enum FilterOperator {
 		LessThan,
 		LessThanOrEqualTo,

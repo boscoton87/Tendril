@@ -78,10 +78,10 @@ namespace Tendril.Services.Interfaces {
 		/// );
 		/// </code>
 		/// </summary>
-		/// <typeparam name="TModel"></typeparam>
-		/// <param name="filter"></param>
-		/// <param name="page"></param>
-		/// <param name="pageSize"></param>
+		/// <typeparam name="TModel">The type of model</typeparam>
+		/// <param name="filter">The filter to use for the query</param>
+		/// <param name="page">The page of data to be returned, starting at 0. If null, no pagination will occur</param>
+		/// <param name="pageSize">PageSize of data to be returned. If null, no pagination will occur</param>
 		/// <returns>Resulting dataset</returns>
 		/// <exception cref="UnsupportedFilterException"></exception>
 		Task<IEnumerable<TModel>> FindByFilter<TModel>(

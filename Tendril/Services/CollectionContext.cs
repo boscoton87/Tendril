@@ -7,7 +7,7 @@ using Tendril.Models;
 using Tendril.Services.Interfaces;
 
 namespace Tendril.Services {
-	internal class CollectionContext<TCollection, TDataSource, TModel> : IDataCollection
+	public class CollectionContext<TCollection, TDataSource, TModel> : IDataCollection
 		where TCollection : class
 		where TDataSource : class, IDisposable
 		where TModel : class {

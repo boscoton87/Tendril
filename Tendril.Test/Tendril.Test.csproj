@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tendril.InMemory\Tendril.InMemory.csproj" />
     <ProjectReference Include="..\Tendril\Tendril.csproj" />
   </ItemGroup>
 
