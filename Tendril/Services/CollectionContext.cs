@@ -23,7 +23,7 @@ namespace Tendril.Services {
 
 		private readonly Func<TDataSource, TCollection> _getCollection;
 
-		private readonly Func<TCollection, string, object[], IQueryable<TModel>> _executeRawQuery;
+		private readonly Func<TCollection, string, object[], Task<IEnumerable<TModel>>> _executeRawQuery;
 
 		private readonly Func<FilterChip, ValidationResult> _validateFilters;
 
@@ -36,7 +36,7 @@ namespace Tendril.Services {
 			Func<TCollection, TModel, TModel> update,
 			Action<TCollection, TModel> delete,
 			Func<TDataSource, TCollection> getCollection,
-			Func<TCollection, string, object[], IQueryable<TModel>> executeRawQuery,
+			Func<TCollection, string, object[], Task<IEnumerable<TModel>>> executeRawQuery,
 			Func<FilterChip, ValidationResult> validateFilters,
 			Func<TCollection, FilterChip, int?, int?, Task<IEnumerable<TModel>>> findByFilter
 		) {
@@ -51,8 +51,9 @@ namespace Tendril.Services {
 			_findByFilter = findByFilter;
 		}
 
-		public IQueryable<TEntity> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class {
-			return _executeRawQuery( _getCollection( dataSource as TDataSource ), query, parameters ).Select( d => d as TEntity );
+		public async Task<IEnumerable<TEntity>> ExecuteRawQuery<TEntity>( object dataSource, string query, object[] parameters ) where TEntity : class {
+			var result = await _executeRawQuery( _getCollection( dataSource as TDataSource ), query, parameters );
+			return result as IEnumerable<TEntity>;
 		}
 
 		public TEntity Add<TEntity>( object dataSource, TEntity entity ) where TEntity : class {

@@ -85,7 +85,7 @@ namespace Tendril.EFCore.Extensions {
 				update: ( dbSet, entity ) => dbSet.Update( entity ).Entity,
 				delete: ( dbSet, entity ) => dbSet.Remove( entity ),
 				getCollection: getCollection,
-				executeRawQuery: ( dbSet, query, parameters ) => dbSet.FromSqlRaw( query, parameters ),
+				executeRawQuery: async ( dbSet, query, parameters ) => await dbSet.FromSqlRaw( query, parameters ).ToListAsync(),
 				validateFilters: validateFilters,
 				findByFilter: findByFilter
 			);
