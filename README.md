@@ -1,3 +1,4 @@
+
 # Tendril
 
 ## About
@@ -10,7 +11,7 @@ Some of these database specific packages include: Tendril.EFCore, Tendril.InMemo
 ## Examples
 For all examples below, we will be using the following entity definition and dbcontext, note this example is also dependent on Tendril.EFCore for bootstrapping the collection to the DataManager.
 
-```
+```C#
 public class Student {
 	public int Id { get; set; }
 	public string Name { get; set; }
@@ -43,10 +44,12 @@ var dataManager = new DataManager()
 		);
 ```
 ### Create a new student with the name "John Doe"
-`var student = await dataManager.Create( new Student { Name = "John Doe" } );`
+```C#
+var student = await dataManager.Create( new Student { Name = "John Doe" } );
+```
 
 ### Create multiple students in a batch
-```
+```C#
 var students = new List<Student> {
 	new Student { Name = "John Doe" },
 	new Student { Name = "Jane Doe" }
@@ -55,19 +58,19 @@ await dataManager.CreateRange( students, 2 );
 ```
 
 ### Insert a student and then change their name
-```
+```C#
 var student = await dataManager.Create( new Student { Name = "John Doe" } );
 student.Name = "John Lee Doe";
 await dataManager.Update( student );
 ```
 ### Delete a student from the collection
-```
+```C#
 var student = await dataManager.Create( new Student { Name = "John Doe" } );
 await dataManager.Delete( student );
 ```
 
 ### Find a student who either has an ID equal to 5, or a name that starts with John and ends with Doe
-```
+```C#
 var filters = new OrFilterChip(
 	new FilterChip( "Id", FilterOperator.EqualTo, 5 ),
 	new AndFilterChip(
