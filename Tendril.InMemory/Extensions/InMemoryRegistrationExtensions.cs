@@ -62,11 +62,12 @@ namespace Tendril.InMemory.Extensions {
 		/// </summary>
 		/// <typeparam name="TModel">The type of model</typeparam>
 		/// <typeparam name="TKey">The type of key</typeparam>
+		/// <param name="dataSource"></param>
 		/// <param name="getKey">Function that defines how to get the key from the model</param>
 		/// <param name="setKey">Function that defines how to set the key on the model</param>
 		/// <param name="keyGenerator">Service class which supplies new keys to use for storage</param>
 		/// <param name="validateFilters">Function for validating filters, see FilterChipValidatorService class for more information</param>
-		/// <param name="findByFilter">Function for performing filtering of data, se LinqFindByFilterService class for more information</param>
+		/// <param name="findByFilter">Function for performing filtering of data, see LinqFindByFilterService class for more information</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
 		/// <exception cref="NotSupportedException"></exception>
 		public static DataSourceContext<InMemoryDataSource> WithDbSet<TModel, TKey>(

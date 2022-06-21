@@ -36,6 +36,7 @@ namespace Tendril.EFCore.Extensions {
 		/// Specify which DbContext to register a collection to, and how to instantiate it
 		/// </summary>
 		/// <typeparam name="TDataSource">The type of DbContext</typeparam>
+		/// <param name="dataManager"></param>
 		/// <param name="GetDbContext">Function that instantiates the specified DbContext type</param>
 		/// <returns>Returns an instance of DataSourceContext for registration of collections using the WithDbSet method</returns>
 		/// <exception cref="ArgumentException"></exception>
@@ -61,9 +62,10 @@ namespace Tendril.EFCore.Extensions {
 		/// </summary>
 		/// <typeparam name="TModel">The type of entity</typeparam>
 		/// <typeparam name="TDataSource">The type of DbContext</typeparam>
+		/// <param name="dataSource"></param>
 		/// <param name="getCollection">Function that defines how to get the DbSet from the DbContext</param>
 		/// <param name="validateFilters">Function for validating filters, see FilterChipValidatorService class for more information</param>
-		/// <param name="findByFilter">Function for performing filtering of data, se LinqFindByFilterService class for more information</param>
+		/// <param name="findByFilter">Function for performing filtering of data, see LinqFindByFilterService class for more information</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
 		public static DataSourceContext<TDataSource> WithDbSet<TModel, TDataSource>(
 			this DataSourceContext<TDataSource> dataSource,

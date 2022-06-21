@@ -5,6 +5,7 @@ namespace Tendril.InMemory.Services {
 	/// Service class that generates sequential keys
 	/// </summary>
 	/// <typeparam name="TKey">The type of key</typeparam>
+	/// /// <typeparam name="TModel">The type of Model</typeparam>
 	public class KeyGeneratorSequential<TModel, TKey> : IKeyGenerator<TModel, TKey> where TModel : class where TKey : IComparable {
 		private TKey? _lastKey;
 

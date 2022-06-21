@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Authors>Impactus</Authors>
     <Description>Tendril.EFCore provides registration logic to use EFCore as the backing datasource for Tendril</Description>
     <PackageProjectUrl>https://github.com/boscoton87/Tendril</PackageProjectUrl>
@@ -14,6 +14,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Added XML Comments</PackageReleaseNotes>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -34,7 +36,7 @@
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.6" />
-	  <PackageReference Include="Tendril" Version="0.3.0" />
+	  <PackageReference Include="Tendril" Version="0.3.1" />
 	</ItemGroup>
 
 </Project>

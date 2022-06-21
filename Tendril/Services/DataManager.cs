@@ -11,10 +11,19 @@ namespace Tendril.Services {
 	/// Service class which provides a CRUD interface to registered data collections
 	/// </summary>
 	public class DataManager : IDataManager {
+		/// <summary>
+		/// Collection of registered DataSourceContexts, these should only be set at bootstrap time
+		/// </summary>
 		public Dictionary<Type, object> TDataSourceToDataSourceContext { get; }
 
+		/// <summary>
+		/// Collection of registered CollectionContexts, these should only be set at bootstrap time
+		/// </summary>
 		public Dictionary<Type, IDataCollection> TModelToCollectionContext { get; }
 
+		/// <summary>
+		/// Service class which provides a CRUD interface to registered data collections
+		/// </summary>
 		public DataManager() {
 			TDataSourceToDataSourceContext = new Dictionary<Type, object>();
 			TModelToCollectionContext = new Dictionary<Type, IDataCollection>();
@@ -33,7 +42,7 @@ namespace Tendril.Services {
 		/// <returns>The model that has been inserted</returns>
 		public async Task<TModel> Create<TModel>( TModel source ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			var entity = collectionContext.Add( dataContext, source );
 			await collectionContext.SaveChangesAsync( dataContext );
 			return entity;
@@ -56,7 +65,7 @@ namespace Tendril.Services {
 		/// <param name="batchSize">The number of models to insert at a time</param>
 		public async Task CreateRange<TModel>( IEnumerable<TModel> source, int batchSize ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			foreach ( var batch in source.Chunk( batchSize ) ) {
 				collectionContext.AddRange( dataContext, batch );
 				await collectionContext.SaveChangesAsync( dataContext );
@@ -79,7 +88,7 @@ namespace Tendril.Services {
 		/// <returns>The model that has been updated</returns>
 		public async Task<TModel> Update<TModel>( TModel source ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			var entity = collectionContext.Update( dataContext, source );
 			await collectionContext.SaveChangesAsync( dataContext );
 			return entity;
@@ -96,7 +105,7 @@ namespace Tendril.Services {
 		/// <param name="source">The model to be deleted</param>
 		public async Task Delete<TModel>( TModel source ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			collectionContext.Delete( dataContext, source );
 			await collectionContext.SaveChangesAsync( dataContext );
 		}
@@ -125,7 +134,7 @@ namespace Tendril.Services {
 			int? pageSize = null
 		) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			var result = await collectionContext.FindByFilter<TModel>( dataContext, filter, page, pageSize );
 			if ( !result.IsSuccess ) {
 				throw new UnsupportedFilterException( result.Message );
@@ -152,7 +161,7 @@ namespace Tendril.Services {
 		/// <returns>Resulting dataset</returns>
 		public async Task<IEnumerable<TModel>> ExecuteRawQuery<TModel>( string query, params object[] parameters ) where TModel : class {
 			var collectionContext = GetCollectionContext<TModel>();
-			using var dataContext = collectionContext.GetDataContext();
+			using var dataContext = collectionContext.GetConnection();
 			return await collectionContext.ExecuteRawQuery<TModel>( dataContext, query, parameters );
 		}
 

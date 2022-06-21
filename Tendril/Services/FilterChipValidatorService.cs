@@ -42,6 +42,32 @@ namespace Tendril.Services {
 
 		private int? _maxFilterDepth = null;
 
+		/// <summary>
+		/// Service class for defining criteria for FilterChips<br />
+		/// <b>Example Usage:</b><br />
+		/// <code>
+		/// public class Student {
+		///		public int Id { get; set; }
+		///		public string Name { get; set; }
+		///	}
+		///	
+		/// var validator = new FilterChipValidatorService()
+		///		.HasDistinctFields()
+		///		.HasFilterType&lt;int&gt;( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
+		///		.HasFilterType&lt;int&gt;( "Id", false, 1, 10, FilterOperator.In, FilterOperator.NotIn )
+		///		.HasFilterType&lt;string&gt;(
+		///			"Name", false, 1, 1,
+		///			FilterOperator.EqualTo, FilterOperator.NotEqualTo, FilterOperator.StartsWith,
+		///			FilterOperator.NotStartsWith, FilterOperator.EndsWith, FilterOperator.NotEndsWith
+		///		);
+		///	
+		/// validator.ValidateFilters( new FilterChip( "Id", FilterOperator.LessThan, 10 ) );
+		/// // Fails validation because LessThan is not a defined operator for the <b>Id</b> field
+		/// 
+		/// validator.ValidateFilters( new FilterChip( "Name", FilterOperator.EqualTo, "John Doe" ) );
+		/// // Passes because it meets all criteria defined for the <b>Name</b> field
+		///	</code>
+		/// </summary>
 		public FilterChipValidatorService() {
 			_validationSteps = new List<ValidationStep> { ValidateAndOrFilters };
 		}
