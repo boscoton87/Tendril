@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Tendril.Services {
 	/// <summary>
@@ -17,10 +16,5 @@ namespace Tendril.Services {
 		/// Creates a new instance of the underlying connection
 		/// </summary>
 		public Func<TDataSource> GetDataSource { get; init; }
-
-		/// <summary>
-		/// Apply the pending changes to the underlying datasource
-		/// </summary>
-		public Func<TDataSource, Task> SaveChangesAsync { get; init; }
 	}
 }

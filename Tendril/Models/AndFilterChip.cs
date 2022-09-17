@@ -5,8 +5,8 @@
 	/// <code>
 	/// // Find all records where their <b>Name</b> starts with <b>A</b> and their <b>Occupation</b> is one of the following: <b>Doctor, Lawyer</b><br />
 	/// var filter = new AndFilterChip(
-	///		new FilterChip( "Name", FilterOperator.StartsWith, "A" ),
-	///		new FilterChip( "Occupation", FilterOperator.In, "Doctor", "Lawyer" )
+	///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Name, FilterOperator.StartsWith, "A" ),
+	///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Occupation, FilterOperator.In, "Doctor", "Lawyer" )
 	/// );
 	/// </code>
 	/// </summary>
@@ -17,8 +17,8 @@
 		/// <code>
 		/// // Find all records where their <b>Name</b> starts with <b>A</b> and their <b>Occupation</b> is one of the following: <b>Doctor, Lawyer</b><br />
 		/// var filter = new AndFilterChip(
-		///		new FilterChip( "Name", FilterOperator.StartsWith, "A" ),
-		///		new FilterChip( "Occupation", FilterOperator.In, "Doctor", "Lawyer" )
+		///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Name, FilterOperator.StartsWith, "A" ),
+		///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Occupation, FilterOperator.In, "Doctor", "Lawyer" )
 		/// );
 		/// </code>
 		/// </summary>

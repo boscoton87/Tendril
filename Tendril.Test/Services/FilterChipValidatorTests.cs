@@ -2,23 +2,24 @@
 using Tendril.Enums;
 using Tendril.Models;
 using Tendril.Services;
+using Tendril.Test.Mocks.Models;
 
 namespace Tendril.Test.Services {
 	[TestFixture]
 	public class FilterChipValidatorTests {
-		private FilterChipValidatorService _validator;
+		private FilterChipValidatorService<Student> _validator;
 
 		[SetUp]
 		public void Initialize() {
-			_validator = new FilterChipValidatorService()
-				.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
-				.HasFilterType<int>( "Id", false, 2, 3, FilterOperator.In, FilterOperator.NotIn )
-				.HasFilterType<string>(
-					"Name", false, 1, 1,
+			_validator = new FilterChipValidatorService<Student>()
+				.HasFilterType( s => s.Id, false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
+				.HasFilterType( s => s.Id, false, 2, 3, FilterOperator.In, FilterOperator.NotIn )
+				.HasFilterType(
+					s => s.Name, false, 1, 1,
 					FilterOperator.EqualTo, FilterOperator.NotEqualTo, FilterOperator.StartsWith,
 					FilterOperator.NotStartsWith, FilterOperator.EndsWith, FilterOperator.NotEndsWith
 				)
-				.HasFilterType<bool>( "IsEnrolled", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo );
+				.HasFilterType( s => s.IsEnrolled, false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo );
 		}
 
 		private void AssertResultFails( FilterChip filter, string message ) {
@@ -47,7 +48,7 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void ValidOrFilterPasses() {
 			var filters = new OrFilterChip(
-				new FilterChip( "Id", FilterOperator.EqualTo, 1 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 )
 			);
 			AssertResultPasses( filters );
 		}
@@ -66,7 +67,7 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void ValidAndFilterPasses() {
 			var filters = new AndFilterChip(
-				new FilterChip( "Id", FilterOperator.EqualTo, 1 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 )
 			);
 			AssertResultPasses( filters );
 		}
@@ -82,7 +83,7 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void ExceededMaxDepthFails() {
 			var filters = new OrFilterChip(
-				new FilterChip( "Id", FilterOperator.EqualTo, 1 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 )
 			);
 			_validator.WithMaxFilterDepth( 1 );
 			AssertResultFails( filters, "Filter with depth of 2 found, max supported depth is 1" );
@@ -90,7 +91,7 @@ namespace Tendril.Test.Services {
 
 		[Test]
 		public void WithinMaxDepthPasses() {
-			var filters = new FilterChip( "Id", FilterOperator.EqualTo, 1 );
+			var filters = new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 );
 			_validator.WithMaxFilterDepth( 1 );
 			AssertResultPasses( filters );
 		}
@@ -98,7 +99,7 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void NoMaxDepthPasses() {
 			var filters = new OrFilterChip(
-				new FilterChip( "Id", FilterOperator.EqualTo, 1 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 )
 			);
 			AssertResultPasses( filters );
 		}
@@ -116,13 +117,13 @@ namespace Tendril.Test.Services {
 
 		[Test]
 		public void RejectUndefinedFiltersFails() {
-			var filters = new FilterChip( "foo", FilterOperator.EqualTo, "bar" );
+			var filters = new ValueFilterChip<Student, string>( "foo", FilterOperator.EqualTo, "bar" );
 			AssertResultFails( filters, "Undefined filter provided" );
 		}
 
 		[Test]
 		public void AllowUndefinedFiltersPasses() {
-			var filters = new FilterChip( "foo", FilterOperator.EqualTo, "bar" );
+			var filters = new ValueFilterChip<Student, string>( "foo", FilterOperator.EqualTo, "bar" );
 			_validator.AllowUndefinedFilters();
 			AssertResultPasses( filters );
 		}
@@ -130,8 +131,8 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void RejectDuplicateFieldsFails() {
 			var filters = new AndFilterChip(
-				new FilterChip( "Id", FilterOperator.In, 1, 2, 3 ),
-				new FilterChip( "Id", FilterOperator.NotIn, 4, 5, 6 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.In, 1, 2, 3 ),
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.NotIn, 4, 5, 6 )
 			);
 			_validator.HasDistinctFields();
 			AssertResultFails( filters, "Duplicate filter provided" );
@@ -140,8 +141,8 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void AllowDuplicateFieldsFails() {
 			var filters = new AndFilterChip(
-				new FilterChip( "Id", FilterOperator.In, 1, 2, 3 ),
-				new FilterChip( "Id", FilterOperator.NotIn, 4, 5, 6 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.In, 1, 2, 3 ),
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.NotIn, 4, 5, 6 )
 			);
 			AssertResultPasses( filters );
 		}
@@ -149,7 +150,7 @@ namespace Tendril.Test.Services {
 		[Test]
 		public void MissingRequiredFieldFails() {
 			var filters = new OrFilterChip(
-				new FilterChip( "Id", FilterOperator.EqualTo, 1 )
+				new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 1 )
 			);
 			_validator.HasFilterType<string>( "Degree", true, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo );
 			AssertResultFails( filters, "Degree filter was not provided" );
@@ -157,30 +158,38 @@ namespace Tendril.Test.Services {
 
 		[Test]
 		public void NullFilterValuesFails() {
-			AssertResultFails( new FilterChip( "Name", FilterOperator.EqualTo, null ), "Name filter values must not be null" );
+			AssertResultFails( new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.EqualTo, null ), "Name filter values must not be null" );
 		}
 
 		[Test]
 		public void TooFewFilterValuesFails() {
-			AssertResultFails( new FilterChip( "Id", FilterOperator.In, 1 ), "Id filter values length must be greater than 1 and less than 4" );
+			AssertResultFails( new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.In, 1 ), "Id filter values length must be greater than 1 and less than 4" );
 		}
 
 		[Test]
 		public void TooManyFilterValuesFails() {
-			AssertResultFails( new FilterChip( "Id", FilterOperator.In, 1, 2, 3, 4 ), "Id filter values length must be greater than 1 and less than 4" );
+			AssertResultFails( new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.In, 1, 2, 3, 4 ), "Id filter values length must be greater than 1 and less than 4" );
 		}
 
 		[Test]
 		public void HasFilterTypeMinValueCountTooLowThrows() {
 			Assert.Throws<ArgumentException>(
-				() => _validator.HasFilterType<int>( "foo", false, 0, 1, FilterOperator.In ),
-				"minValueCount must be greater than or equal to 1"
+				() => _validator.HasFilterType<int>( "foo", false, -1, 0, FilterOperator.In ),
+				"minValueCount must be greater than or equal to 0"
+			);
+		}
+
+		[Test]
+		public void HasFilterTypeMinValueCountLessThanMaxValueCountThrows() {
+			Assert.Throws<ArgumentException>(
+				() => _validator.HasFilterType<int>( "foo", false, 1, 0, FilterOperator.In ),
+				"maxValueCount must be greater than or equal to minValueCount"
 			);
 		}
 
 		[Test]
 		public void InvalidFilterValueTypeFails() {
-			var filters = new FilterChip( "Id", FilterOperator.EqualTo, 1.1 );
+			var filters = new ValueFilterChip<Student, float>( "Id", FilterOperator.EqualTo, 1.1f );
 			AssertResultFails( filters, "Id filter values must be of type Int32" );
 		}
 	}

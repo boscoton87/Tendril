@@ -36,8 +36,8 @@ namespace Tendril.Services.Interfaces {
 		/// </summary>
 		/// <typeparam name="TModel">The type of model</typeparam>
 		/// <param name="source">The collection of models to be inserted</param>
-		/// <param name="batchSize">The number of models to insert at a time</param>
-		Task CreateRange<TModel>( IEnumerable<TModel> source, int batchSize ) where TModel : class;
+		/// <param name="batchSize">The number of models to insert at a time, if not supplied, insert all at once</param>
+		Task CreateRange<TModel>( IEnumerable<TModel> source, int? batchSize = null ) where TModel : class;
 
 		/// <summary>
 		/// Perform an update on a given model

@@ -33,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Tendril" Version="0.4.0" />
+	  <PackageReference Include="Tendril" Version="0.4.*" />
 	</ItemGroup>
 
 </Project>

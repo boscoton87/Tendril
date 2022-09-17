@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tendril.Models;
+using Tendril.EFCore.Models;
 using Tendril.Services;
 
 namespace Tendril.EFCore.Extensions {
 	/// <summary>
-	/// DataManager extension methods for registering an in-memory datasource<br />
+	/// DataManager extension methods for registering an EFCore DbContext<br />
 	/// <b>Example:</b><br />
 	/// <code>
 	/// public class Student {
@@ -17,7 +17,7 @@ namespace Tendril.EFCore.Extensions {
 	///	}
 	/// 
 	/// var findByFilterService = new LinqFindByFilterService&lt;Student&gt;()
-	///		.WithFilterDefinition( "Id", FilterOperator.EqualTo, v =&gt; s =&gt; s.Id == ( ( int ) v.First() ) );
+	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.EqualTo, v =&gt; s =&gt; s.Id == v.First() );
 	///	
 	/// var dataManager = new DataManager()
 	///		.WithDbContext( () => new StudentDbContext( new DbContextOptions() ) )
@@ -25,9 +25,6 @@ namespace Tendril.EFCore.Extensions {
 	///				db =&gt; db.Students,
 	///				new FilterChipValidatorService()
 	///					.HasFilterType&lt;int&gt;( "Id", false, 1, 1, FilterOperator.EqualTo )
-	///					.ValidateFilters,
-	///				async ( dbSet, filter, page, pageSize ) =&gt;
-	///					await findByFilterService.FindByFilter( dbSet, filter, page, pageSize ).ToListAsync()
 	///			);
 	/// </code>
 	/// </summary>
@@ -39,21 +36,14 @@ namespace Tendril.EFCore.Extensions {
 		/// <param name="dataManager"></param>
 		/// <param name="GetDbContext">Function that instantiates the specified DbContext type</param>
 		/// <returns>Returns an instance of DataSourceContext for registration of collections using the WithDbSet method</returns>
-		/// <exception cref="ArgumentException"></exception>
 		public static DataSourceContext<TDataSource> WithDbContext<TDataSource>(
 			this DataManager dataManager,
 			Func<TDataSource> GetDbContext
 		) where TDataSource : DbContext {
-			var modelType = typeof( TDataSource );
-			if ( dataManager.TDataSourceToDataSourceContext.ContainsKey( modelType ) ) {
-				throw new ArgumentException( $"Model type: {modelType} already registered." );
-			}
 			var context = new DataSourceContext<TDataSource> {
 				GetDataSource = GetDbContext,
-				SaveChangesAsync = context => context.SaveChangesAsync(),
 				DataManager = dataManager
 			};
-			dataManager.TDataSourceToDataSourceContext.Add( modelType, context );
 			return context;
 		}
 
@@ -64,42 +54,28 @@ namespace Tendril.EFCore.Extensions {
 		/// <typeparam name="TDataSource">The type of DbContext</typeparam>
 		/// <param name="dataSource"></param>
 		/// <param name="getCollection">Function that defines how to get the DbSet from the DbContext</param>
-		/// <param name="validateFilters">Function for validating filters, see FilterChipValidatorService class for more information</param>
-		/// <param name="findByFilter">Function for performing filtering of data, see LinqFindByFilterService class for more information</param>
+		/// <param name="findByFilterService">See LinqFindByFilterService class for more information</param>
+		/// <param name="filterChipValidator">If not provided, no filter validation will be performed. 
+		/// See FilterChipValidatorService class for more information</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
 		public static DataSourceContext<TDataSource> WithDbSet<TModel, TDataSource>(
 			this DataSourceContext<TDataSource> dataSource,
 			Func<TDataSource, DbSet<TModel>> getCollection,
-			Func<FilterChip, ValidationResult>? validateFilters = null,
-			Func<DbSet<TModel>, FilterChip, int?, int?, Task<IEnumerable<TModel>>>? findByFilter = null
+			LinqFindByFilterService<TModel> findByFilterService,
+			FilterChipValidatorService<TModel>? filterChipValidator = null
 		) where TDataSource : DbContext, IDisposable where TModel : class {
-			if ( validateFilters is null ) {
-				validateFilters = _ => new ValidationResult();
+			if ( filterChipValidator is null ) {
+				filterChipValidator = new FilterChipValidatorService<TModel>().AllowUndefinedFilters();
 			}
-
-			var dataSourceType = typeof( TDataSource );
 			var modelType = typeof( TModel );
-			ValidateDataSourceType( dataSource, dataSourceType );
-			var context = new CollectionContext<DbSet<TModel>, TDataSource, TModel>(
-				dataSourceContext: dataSource,
-				add: ( dbSet, entity ) => dbSet.Add( entity ).Entity,
-				addRange: ( dbSet, entities ) => dbSet.AddRange( entities ),
-				update: ( dbSet, entity ) => dbSet.Update( entity ).Entity,
-				delete: ( dbSet, entity ) => dbSet.Remove( entity ),
-				getCollection: getCollection,
-				executeRawQuery: async ( dbSet, query, parameters ) => await dbSet.FromSqlRaw( query, parameters ).ToListAsync(),
-				validateFilters: validateFilters,
-				findByFilter: findByFilter
+			var context = new EFCoreDataCollection<TDataSource, TModel>(
+				filterChipValidator,
+				findByFilterService,
+				dataSource,
+				getCollection
 			);
-			dataSource.DataManager.TModelToCollectionContext.Add( modelType, context );
+			dataSource.DataManager.WithDataCollection( context );
 			return dataSource;
-		}
-
-		private static void ValidateDataSourceType<TDataSource>( DataSourceContext<TDataSource> dataSource, Type dataSourceType )
-			where TDataSource : DbContext, IDisposable {
-			if ( !dataSource.DataManager.TDataSourceToDataSourceContext.ContainsKey( dataSourceType ) ) {
-				throw new TypeLoadException( $"DataSource type: {dataSourceType} not registered." );
-			}
 		}
 	}
 }

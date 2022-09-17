@@ -5,8 +5,8 @@
 	/// <code>
 	/// // Find all records where their <b>Name</b> starts with <b>A</b> or <b>B</b><br />
 	/// var filter = new OrFilterChip(
-	///		new FilterChip( "Name", FilterOperator.StartsWith, "A" ),
-	///		new FilterChip( "Name", FilterOperator.StartsWith, "B" )
+	///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Name, FilterOperator.StartsWith, "A" ),
+	///		new ValueFilterChip&lt;Person, string&gt;( p =&gt; p.Name, FilterOperator.StartsWith, "B" )
 	/// );
 	/// </code>
 	/// </summary>

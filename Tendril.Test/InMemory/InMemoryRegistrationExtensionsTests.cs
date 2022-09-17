@@ -34,7 +34,7 @@ namespace Tendril.Test.InMemory {
 		[Test]
 		public async Task TestFilterStudents() {
 			await InsertStudents( "John Doe", "Jane Doe", "John Smith", "Jane Smith" );
-			var students = await DataManager.FindByFilter<Student>( new FilterChip( "Name", FilterOperator.StartsWith, "Jane" ) );
+			var students = await DataManager.FindByFilter<Student>( new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.StartsWith, "Jane" ) );
 			Assert.AreEqual( 2, students.Count() );
 			Assert.IsTrue( students.Any( s => s.Name == "Jane Doe" ) );
 			Assert.IsTrue( students.Any( s => s.Name == "Jane Smith" ) );
@@ -43,7 +43,7 @@ namespace Tendril.Test.InMemory {
 		[Test]
 		public void TestUnsupportedFilter() {
 			Assert.CatchAsync<UnsupportedFilterException>(
-				() => DataManager.FindByFilter<Student>(  new FilterChip( "Name", FilterOperator.LessThan, "foo" ) )
+				() => DataManager.FindByFilter<Student>(  new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.LessThan, "foo" ) )
 			);
 		}
 	}

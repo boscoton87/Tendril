@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Tendril.Enums;
+using Tendril.Extensions;
 using Tendril.Models;
 
 namespace Tendril.Services {
@@ -14,24 +16,25 @@ namespace Tendril.Services {
 	///		public string Name { get; set; }
 	///	}
 	///	
-	/// var validator = new FilterChipValidatorService()
+	/// var validator = new FilterChipValidatorService&lt;Student&gt;()
 	///		.HasDistinctFields()
-	///		.HasFilterType&lt;int&gt;( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
-	///		.HasFilterType&lt;int&gt;( "Id", false, 1, 10, FilterOperator.In, FilterOperator.NotIn )
-	///		.HasFilterType&lt;string&gt;(
-	///			"Name", false, 1, 1,
+	///		.HasFilterType( s =&gt; s.Id, false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
+	///		.HasFilterType( s =&gt; s.Id, false, 1, 10, FilterOperator.In, FilterOperator.NotIn )
+	///		.HasFilterType(
+	///			s =&gt; s.Name, false, 1, 1,
 	///			FilterOperator.EqualTo, FilterOperator.NotEqualTo, FilterOperator.StartsWith,
 	///			FilterOperator.NotStartsWith, FilterOperator.EndsWith, FilterOperator.NotEndsWith
 	///		);
 	///	
-	/// validator.ValidateFilters( new FilterChip( "Id", FilterOperator.LessThan, 10 ) );
+	/// validator.ValidateFilters( new ValueFilterChip&lt;Student, int&gt;( s =&gt; s.Id, FilterOperator.LessThan, 10 ) );
 	/// // Fails validation because LessThan is not a defined operator for the <b>Id</b> field
 	/// 
-	/// validator.ValidateFilters( new FilterChip( "Name", FilterOperator.EqualTo, "John Doe" ) );
+	/// validator.ValidateFilters( new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.EqualTo, "John Doe" ) );
 	/// // Passes because it meets all criteria defined for the <b>Name</b> field
 	///	</code>
 	/// </summary>
-	public class FilterChipValidatorService {
+	/// <typeparam name="TModel">The Type of the model.<br /></typeparam>
+	public class FilterChipValidatorService<TModel> where TModel : class {
 		private delegate ValidationResult ValidationStep( IEnumerable<FilterChip> filters, Dictionary<FilterChip, bool> filtersHit );
 
 		private readonly List<ValidationStep> _validationSteps;
@@ -51,20 +54,20 @@ namespace Tendril.Services {
 		///		public string Name { get; set; }
 		///	}
 		///	
-		/// var validator = new FilterChipValidatorService()
+		/// var validator = new FilterChipValidatorService&lt;Student&gt;()
 		///		.HasDistinctFields()
-		///		.HasFilterType&lt;int&gt;( "Id", false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
-		///		.HasFilterType&lt;int&gt;( "Id", false, 1, 10, FilterOperator.In, FilterOperator.NotIn )
-		///		.HasFilterType&lt;string&gt;(
-		///			"Name", false, 1, 1,
+		///		.HasFilterType( s =&gt; s.Id, false, 1, 1, FilterOperator.EqualTo, FilterOperator.NotEqualTo )
+		///		.HasFilterType( s =&gt; s.Id, false, 1, 10, FilterOperator.In, FilterOperator.NotIn )
+		///		.HasFilterType(
+		///			s =&gt; s.Name, false, 1, 1,
 		///			FilterOperator.EqualTo, FilterOperator.NotEqualTo, FilterOperator.StartsWith,
 		///			FilterOperator.NotStartsWith, FilterOperator.EndsWith, FilterOperator.NotEndsWith
 		///		);
 		///	
-		/// validator.ValidateFilters( new FilterChip( "Id", FilterOperator.LessThan, 10 ) );
+		/// validator.ValidateFilters( new ValueFilterChip&lt;Student, int&gt;( s =&gt; s.Id, FilterOperator.LessThan, 10 ) );
 		/// // Fails validation because LessThan is not a defined operator for the <b>Id</b> field
 		/// 
-		/// validator.ValidateFilters( new FilterChip( "Name", FilterOperator.EqualTo, "John Doe" ) );
+		/// validator.ValidateFilters( new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.EqualTo, "John Doe" ) );
 		/// // Passes because it meets all criteria defined for the <b>Name</b> field
 		///	</code>
 		/// </summary>
@@ -105,7 +108,7 @@ namespace Tendril.Services {
 		/// Fail validation if the supplied filter is null
 		/// </summary>
 		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
-		public FilterChipValidatorService RejectNullFilter() {
+		public FilterChipValidatorService<TModel> RejectNullFilter() {
 			_allowNullFilter = false;
 			return this;
 		}
@@ -114,7 +117,7 @@ namespace Tendril.Services {
 		/// Don't fail validation if any FilterChips are provided that don't map back to a filter defined in the fluent interface
 		/// </summary>
 		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
-		public FilterChipValidatorService AllowUndefinedFilters() {
+		public FilterChipValidatorService<TModel> AllowUndefinedFilters() {
 			_allowUndefinedFilters = true;
 			return this;
 		}
@@ -125,7 +128,7 @@ namespace Tendril.Services {
 		/// <param name="maxFilterDepth">Max depth of nested filters, must be greater than 0</param>
 		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
 		/// <exception cref="ArgumentException"></exception>
-		public FilterChipValidatorService WithMaxFilterDepth( int maxFilterDepth ) {
+		public FilterChipValidatorService<TModel> WithMaxFilterDepth( int maxFilterDepth ) {
 			if ( maxFilterDepth < 1 ) {
 				throw new ArgumentException( "maxFilterDepth must be greater than or equal to 1" );
 			}
@@ -137,7 +140,7 @@ namespace Tendril.Services {
 		/// Fail validation if more than one FilterChip maps to a single field
 		/// </summary>
 		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
-		public FilterChipValidatorService HasDistinctFields() {
+		public FilterChipValidatorService<TModel> HasDistinctFields() {
 			ValidationResult step( IEnumerable<FilterChip> filters, Dictionary<FilterChip, bool> filtersHit ) {
 				if ( filters.Where( f => !IsNestedFilter( f ) ).GroupBy( f => f.Field ).Any( g => g.Count() > 1 ) )
 					return new ValidationResult { IsSuccess = false, Message = "Duplicate filter provided" };
@@ -152,6 +155,29 @@ namespace Tendril.Services {
 		/// </summary>
 		/// <typeparam name="TValue">The Type used for values on the given filter.<br />
 		/// <b>Example:</b> If type string, then the FilterChip.Values Property would be of type string[]</typeparam>
+		/// <param name="getProperty">Expression to get the target property from the model</param>
+		/// <param name="required">Whether this filter is required to pass validation</param>
+		/// <param name="minValueCount">Min number of values to be supplied on the FilterChip</param>
+		/// <param name="maxValueCount">Max number of values to be supplied on the FilterChip</param>
+		/// <param name="supportedOperators">params style array of operators supported for this field</param>
+		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
+		/// <exception cref="ArgumentException"></exception>
+		public FilterChipValidatorService<TModel> HasFilterType<TValue>(
+			Expression<Func<TModel, TValue>> getProperty,
+			bool required,
+			int minValueCount,
+			int maxValueCount,
+			params FilterOperator[] supportedOperators
+		) {
+			var field = getProperty.GetPropertyName();
+			return HasFilterType<TValue>( field, required, minValueCount, maxValueCount, supportedOperators );
+		}
+
+		/// <summary>
+		/// Define a supported filter type
+		/// </summary>
+		/// <typeparam name="TValue">The Type used for values on the given filter.<br />
+		/// <b>Example:</b> If type string, then the FilterChip.Values Property would be of type string[]</typeparam>
 		/// <param name="field">The name of the field this filter will apply to</param>
 		/// <param name="required">Whether this filter is required to pass validation</param>
 		/// <param name="minValueCount">Min number of values to be supplied on the FilterChip</param>
@@ -159,9 +185,11 @@ namespace Tendril.Services {
 		/// <param name="supportedOperators">params style array of operators supported for this field</param>
 		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
 		/// <exception cref="ArgumentException"></exception>
-		public FilterChipValidatorService HasFilterType<TValue>( string field, bool required, int minValueCount, int maxValueCount, params FilterOperator[] supportedOperators ) {
-			if ( minValueCount < 1 ) {
-				throw new ArgumentException( "minValueCount must be greater than or equal to 1" );
+		public FilterChipValidatorService<TModel> HasFilterType<TValue>( string field, bool required, int minValueCount, int maxValueCount, params FilterOperator[] supportedOperators ) {
+			if ( minValueCount < 0 ) {
+				throw new ArgumentException( "minValueCount must be greater than or equal to 0" );
+			} else if ( maxValueCount < minValueCount ) {
+				throw new ArgumentException( "maxValueCount must be greater than or equal to minValueCount" );
 			}
 			ValidationResult step( IEnumerable<FilterChip> filters, Dictionary<FilterChip, bool> filtersHit ) {
 				var foundFilters = filters.Where( f => f != null && f.Field == field && f.Operator.HasValue && supportedOperators.Contains( f.Operator.Value ) ).ToList();

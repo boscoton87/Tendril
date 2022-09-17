@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Tendril.Enums;
 using Tendril.Exceptions;
+using Tendril.Extensions;
 using Tendril.Models;
 
 namespace Tendril.Services {
@@ -17,19 +18,22 @@ namespace Tendril.Services {
 	///	}
 	///	
 	/// var filterService = new LinqFindByFilterService&lt;Student&gt;()
-	///		.WithFilterDefinition( "Id", FilterOperator.EqualTo, values => s => s.Id == ( int ) values.First() )
-	///		.WithFilterDefinition( "Id", FilterOperator.NotEqualTo, values => s => s.Id != ( int ) values.First() )
-	///		.WithFilterDefinition( "Name", FilterOperator.StartsWith, values => s => s.Name.StartsWith( v.Single() as string ) )
-	///		.WithFilterDefinition( "Name", FilterOperator.EndsWith, values => s => s.Name.EndsWith( v.Single() as string ) );
+	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.EqualTo, values => s => s.Id == values.First() )
+	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.NotEqualTo, values => s => s.Id != values.First() )
+	///		.WithFilterDefinition( s =&gt; s.Name, FilterOperator.StartsWith, values => s => s.Name.StartsWith( v.Single() ) )
+	///		.WithFilterDefinition( s =&gt; s.Name, FilterOperator.EndsWith, values => s => s.Name.EndsWith( v.Single() ) );
 	///	
-	/// var data = new List&lt;Student&gt; { new Student { Name = "John Lee Doe" }, new Student { Name = "Jane Sue Doe" } };
+	/// var data = new List&lt;Student&gt; {
+	///		new Student { Name = "John Lee Doe" },
+	///		new Student { Name = "Jane Sue Doe" }
+	///	}.AsQueryable();
 	/// 
 	/// var filters = new AndFilterChip(
-	///		new FilterChip( "Name", FilterOperator.StartsWith, "John" ),
-	///		new FilterChip( "Name", FilterOperator.EndsWith, "Doe" )
+	///		new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.StartsWith, "John" ),
+	///		new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.EndsWith, "Doe" )
 	/// );
 	/// 
-	/// var results = filterService.FindByFilter( data.AsQueryable(), filters, null, null );
+	/// var results = filterService.FindByFilter( data, filters );
 	/// // results just contains the Student with name <b>John Lee Doe</b>
 	/// 
 	/// </code>
@@ -41,9 +45,24 @@ namespace Tendril.Services {
 		/// </summary>
 		/// <param name="filterValues">Values property of a FilterChip</param>
 		/// <returns>Linq Expression to be applied to a Dataset</returns>
-		public delegate Expression<Func<TModel, bool>> FilterByValues( object[] filterValues );
+		private delegate Expression<Func<TModel, bool>> FilterByValues( object[] filterValues );
 
 		private readonly Dictionary<(string field, FilterOperator filterOperator), FilterByValues> _fieldToExpressionBuilder = new();
+
+		/// <summary>
+		/// Fluent interface for defining how a field/operator combination will be converted into a linq expression
+		/// </summary>
+		/// <param name="getProperty">Expression to get the name of the field that this definition will apply to</param>
+		/// <param name="filterOperator">The operator that this definition will apply to</param>
+		/// <param name="filterByValues">The expression building function that will be tied to this field/operator combination</param>
+		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
+		public LinqFindByFilterService<TModel> WithFilterDefinition<TValue>(
+			Expression<Func<TModel, TValue>> getProperty,
+			FilterOperator filterOperator,
+			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues
+		) {
+			return WithFilterDefinition( getProperty.GetPropertyName(), filterOperator, filterByValues );
+		}
 
 		/// <summary>
 		/// Fluent interface for defining how a field/operator combination will be converted into a linq expression
@@ -52,8 +71,13 @@ namespace Tendril.Services {
 		/// <param name="filterOperator">The operator that this definition will apply to</param>
 		/// <param name="filterByValues">The expression building function that will be tied to this field/operator combination</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
-		public LinqFindByFilterService<TModel> WithFilterDefinition( string field, FilterOperator filterOperator, FilterByValues filterByValues ) {
-			_fieldToExpressionBuilder.Add( (field, filterOperator), filterByValues );
+		public LinqFindByFilterService<TModel> WithFilterDefinition<TValue>(
+			string field,
+			FilterOperator filterOperator,
+			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues
+		) {
+			FilterByValues filterToStore = values => filterByValues( values.Select( v => ( TValue ) v ).ToArray() );
+			_fieldToExpressionBuilder.Add( (field, filterOperator), filterToStore );
 			return this;
 		}
 
@@ -66,13 +90,13 @@ namespace Tendril.Services {
 		/// <param name="pageSize">PageSize of data to be returned. If null, no pagination will occur</param>
 		/// <returns>Dataset with filtering applied to it</returns>
 		/// <exception cref="UnsupportedFilterException"></exception>
-		public IQueryable<TModel> FindByFilter( IQueryable<TModel> dbSet, FilterChip filter, int? page, int? pageSize ) {
+		public IQueryable<TModel> FindByFilter( IQueryable<TModel> dbSet, FilterChip filter, int? page = null, int? pageSize = null ) {
 			var query = dbSet.AsQueryable();
 			if ( filter is not null ) {
 				var predicate = BuildPredicate( filter );
 				query = query.Where( predicate );
 			}
-			if ( page.HasValue && pageSize.HasValue ) {
+			if ( ( page.HasValue && page.Value >= 0 ) && ( pageSize.HasValue && pageSize.Value >= 0 ) ) {
 				query = query.Skip( page.Value * pageSize.Value ).Take( pageSize.Value );
 			}
 			return query;
@@ -83,9 +107,15 @@ namespace Tendril.Services {
 				return AndAll( filter.Values.Select( v => BuildPredicate( v as FilterChip ) ).ToArray() );
 			} else if ( filter is OrFilterChip ) {
 				return OrAny( filter.Values.Select( v => BuildPredicate( v as FilterChip ) ).ToArray() );
-			} else if ( filter.Operator.HasValue && _fieldToExpressionBuilder.TryGetValue( (filter.Field, filter.Operator.Value), out FilterByValues filterHandler ) )
+			} else if (
+				filter.Operator.HasValue
+				&& _fieldToExpressionBuilder.TryGetValue(
+					(filter.Field, filter.Operator.Value)
+					, out FilterByValues filterHandler
+				)
+			) {
 				return filterHandler( filter.Values );
-			else
+			} else
 				throw new UnsupportedFilterException( $"No {filter.Field} filter definition found for {( filter.Operator.HasValue ? filter.Operator : "null" )} operator" );
 		}
 
