@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <Authors>Impactus</Authors>
     <Description>Tendril.EFCore provides registration logic to use EFCore as the backing datasource for Tendril</Description>
     <PackageProjectUrl>https://github.com/boscoton87/Tendril</PackageProjectUrl>
@@ -14,15 +14,15 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Added XML Comments</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed issue where Navigation Properties weren't loading when calling FindByFilter</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Title>Tendril.EFCore</Title>
+    <PackageTags>Data; ORM; O/RM; DAL; ObjectRelationalMapping; EFCore; EF Core; Entity Framework</PackageTags>
   </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 		<None Include="..\tendril_icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -36,7 +36,14 @@
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.6" />
-	  <PackageReference Include="Tendril" Version="0.4.*" />
+	  <PackageReference Include="Tendril" Version="0.5.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Description>Tendril.InMemory provides registration logic to use an InMemory cache as the backing datasource for Tendril</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Impactus</Authors>
@@ -14,14 +14,15 @@
     <RepositoryUrl>https://github.com/boscoton87/Tendril</RepositoryUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <PackageReleaseNotes>Added XML Comments</PackageReleaseNotes>
+    <PackageReleaseNotes>Changed License type to MIT,
+Reduced complexity of bootstrapping</PackageReleaseNotes>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Title>Tendril.InMemory</Title>
+    <PackageTags>Data; ORM; O/RM; DAL; ObjectRelationalMapping; InMemory</PackageTags>
   </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 		<None Include="..\tendril_icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -33,7 +34,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Tendril" Version="0.4.*" />
+	  <PackageReference Include="Tendril" Version="0.5.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

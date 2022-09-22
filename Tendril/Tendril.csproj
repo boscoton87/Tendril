@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Impactus</Authors>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <Description>Tendril is a Normalized Data Access Layer Package</Description>
@@ -12,15 +12,18 @@
     <PackageProjectUrl>https://github.com/boscoton87/Tendril</PackageProjectUrl>
     <RepositoryUrl>https://github.com/boscoton87/Tendril</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Added XML Comments</PackageReleaseNotes>
+    <PackageReleaseNotes>Changed License type to MIT,
+Reduced complexity of bootstrapping.
+Added type checking to FilterChips and bootstrap extension methods.
+Improved XML Comments</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageTags>Data; ORM; O/RM; DAL; ObjectRelationalMapping;</PackageTags>
+    <Title>Tendril</Title>
   </PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 		<None Include="..\tendril_icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -29,6 +32,13 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using Tendril.Models;
 using Tendril.Services;
 using Tendril.Services.Interfaces;
 
-namespace Tendril.InMemory.Models {
+namespace Tendril.InMemory.Services {
 	/// <summary>
 	/// IDataCollection implementation for in-memory datasource
 	/// </summary>
@@ -13,32 +13,23 @@ namespace Tendril.InMemory.Models {
 		where TModel : class
 		where TKey : IComparable {
 
-		private readonly FilterChipValidatorService<TModel> _filterChipValidator;
 		private readonly LinqFindByFilterService<TModel> _findByFilterService;
 		private readonly Dictionary<IComparable, object> _collection;
-		private readonly Func<TModel, TKey> _getKey;
-		private readonly Action<TKey, TModel> _setKey;
 		private readonly IKeyGenerator<TModel, TKey> _keyGenerator;
 
 		public InMemoryDataCollection(
-			FilterChipValidatorService<TModel> filterChipValidator,
 			LinqFindByFilterService<TModel> findByFilterService,
-			Func<TModel, TKey> getKey,
-			Action<TKey, TModel> setKey,
 			IKeyGenerator<TModel, TKey> keyGenerator,
 			Dictionary<IComparable, object> collection
 		) {
-			_filterChipValidator = filterChipValidator;
 			_findByFilterService = findByFilterService;
 			_collection = collection;
-			_getKey = getKey;
-			_setKey = setKey;
 			_keyGenerator = keyGenerator;
 		}
 
 		public Task<TModel> Add( TModel entity ) {
-			_setKey( _keyGenerator.GetNextKey( entity ), entity );
-			var key = _getKey( entity );
+			_keyGenerator.SetKeyOnModel( _keyGenerator.GetNextKey( entity ), entity );
+			var key = _keyGenerator.GetKeyFromModel( entity );
 			_collection.Add( key, entity );
 			return Task.FromResult( entity );
 		}
@@ -51,7 +42,7 @@ namespace Tendril.InMemory.Models {
 		}
 
 		public Task Delete( TModel entity ) {
-			var key = _getKey( entity );
+			var key = _keyGenerator.GetKeyFromModel( entity );
 			_collection.Remove( key );
 			return Task.CompletedTask;
 		}
@@ -72,14 +63,14 @@ namespace Tendril.InMemory.Models {
 		}
 
 		public Task<TModel> Update( TModel entity ) {
-			var key = _getKey( entity );
+			var key = _keyGenerator.GetKeyFromModel( entity );
 			_ = _collection.Keys.Single( k => k.CompareTo( key ) == 0 );
 			_collection[ key ] = entity;
 			return Task.FromResult( entity );
 		}
 
 		public ValidationResult ValidateFilters( FilterChip filter ) {
-			return _filterChipValidator.ValidateFilters( filter );
+			return _findByFilterService.ValidateFilters( filter );
 		}
 	}
 }

@@ -18,10 +18,10 @@ namespace Tendril.Services {
 	///	}
 	///	
 	/// var filterService = new LinqFindByFilterService&lt;Student&gt;()
-	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.EqualTo, values => s => s.Id == values.First() )
-	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.NotEqualTo, values => s => s.Id != values.First() )
-	///		.WithFilterDefinition( s =&gt; s.Name, FilterOperator.StartsWith, values => s => s.Name.StartsWith( v.Single() ) )
-	///		.WithFilterDefinition( s =&gt; s.Name, FilterOperator.EndsWith, values => s => s.Name.EndsWith( v.Single() ) );
+	///		.WithFilterType( s =&gt; s.Id, FilterOperator.EqualTo, values => s => s.Id == values.First() )
+	///		.WithFilterType( s =&gt; s.Id, FilterOperator.NotEqualTo, values => s => s.Id != values.First() )
+	///		.WithFilterType( s =&gt; s.Name, FilterOperator.StartsWith, values => s => s.Name.StartsWith( v.Single() ) )
+	///		.WithFilterType( s =&gt; s.Name, FilterOperator.EndsWith, values => s => s.Name.EndsWith( v.Single() ) );
 	///	
 	/// var data = new List&lt;Student&gt; {
 	///		new Student { Name = "John Lee Doe" },
@@ -49,19 +49,65 @@ namespace Tendril.Services {
 
 		private readonly Dictionary<(string field, FilterOperator filterOperator), FilterByValues> _fieldToExpressionBuilder = new();
 
+		private readonly FilterChipValidatorService<TModel> _validator = new();
+
+		/// <summary>
+		/// ValidateFilters method built using the supplied fluent interface
+		/// </summary>
+		/// <param name="filter">The FilterChip to be validated</param>
+		/// <returns>ValidationResult that states if the filter passed validation, and a message if validation failed</returns>
+		public ValidationResult ValidateFilters( FilterChip filter ) {
+			return _validator.ValidateFilters( filter );
+		}
+
+		/// <summary>
+		/// Fail validation if the supplied filter is null
+		/// </summary>
+		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
+		public LinqFindByFilterService<TModel> RejectNullFilter() {
+			_validator.RejectNullFilter();
+			return this;
+		}
+
+		/// <summary>
+		/// Maximum levels deep that FilterChips can be nested
+		/// </summary>
+		/// <param name="maxFilterDepth">Max depth of nested filters, must be greater than 0</param>
+		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
+		/// <exception cref="ArgumentException"></exception>
+		public LinqFindByFilterService<TModel> WithMaxFilterDepth( int maxFilterDepth ) {
+			_validator.WithMaxFilterDepth( maxFilterDepth );
+			return this;
+		}
+
+		/// <summary>
+		/// Fail validation if more than one FilterChip maps to a single field
+		/// </summary>
+		/// <returns>Returns this instance of the class to be chained with the fluent interface</returns>
+		public LinqFindByFilterService<TModel> HasDistinctFields() {
+			_validator.HasDistinctFields();
+			return this;
+		}
+
 		/// <summary>
 		/// Fluent interface for defining how a field/operator combination will be converted into a linq expression
 		/// </summary>
 		/// <param name="getProperty">Expression to get the name of the field that this definition will apply to</param>
 		/// <param name="filterOperator">The operator that this definition will apply to</param>
 		/// <param name="filterByValues">The expression building function that will be tied to this field/operator combination</param>
+		/// <param name="required">Whether this filter is required to pass validation</param>
+		/// <param name="minValueCount">Min number of values to be supplied on the FilterChip</param>
+		/// <param name="maxValueCount">Max number of values to be supplied on the FilterChip</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
-		public LinqFindByFilterService<TModel> WithFilterDefinition<TValue>(
+		public LinqFindByFilterService<TModel> WithFilterType<TValue>(
 			Expression<Func<TModel, TValue>> getProperty,
 			FilterOperator filterOperator,
-			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues
+			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues,
+			bool required = false,
+			int minValueCount = 1,
+			int maxValueCount = 1
 		) {
-			return WithFilterDefinition( getProperty.GetPropertyName(), filterOperator, filterByValues );
+			return WithFilterType( getProperty.GetPropertyName(), filterOperator, filterByValues, required, minValueCount, maxValueCount );
 		}
 
 		/// <summary>
@@ -70,12 +116,19 @@ namespace Tendril.Services {
 		/// <param name="field">The name of the field that this definition will apply to</param>
 		/// <param name="filterOperator">The operator that this definition will apply to</param>
 		/// <param name="filterByValues">The expression building function that will be tied to this field/operator combination</param>
+		/// <param name="required">Whether this filter is required to pass validation</param>
+		/// <param name="minValueCount">Min number of values to be supplied on the FilterChip</param>
+		/// <param name="maxValueCount">Max number of values to be supplied on the FilterChip</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
-		public LinqFindByFilterService<TModel> WithFilterDefinition<TValue>(
+		public LinqFindByFilterService<TModel> WithFilterType<TValue>(
 			string field,
 			FilterOperator filterOperator,
-			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues
+			Func<TValue[], Expression<Func<TModel, bool>>> filterByValues,
+			bool required = false,
+			int minValueCount = 1,
+			int maxValueCount = 1
 		) {
+			_validator.HasFilterType<TValue>( field, required, minValueCount, maxValueCount, filterOperator );
 			FilterByValues filterToStore = values => filterByValues( values.Select( v => ( TValue ) v ).ToArray() );
 			_fieldToExpressionBuilder.Add( (field, filterOperator), filterToStore );
 			return this;

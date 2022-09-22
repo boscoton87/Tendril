@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tendril.EFCore.Models;
+using Tendril.EFCore.Delegates;
+using Tendril.EFCore.Services;
 using Tendril.Services;
 
 namespace Tendril.EFCore.Extensions {
@@ -15,16 +16,13 @@ namespace Tendril.EFCore.Extensions {
 	/// public class StudentDbContext : DbContext {
 	///		public DbSet&lt;Student&gt; Students { get; set; }
 	///	}
-	/// 
-	/// var findByFilterService = new LinqFindByFilterService&lt;Student&gt;()
-	///		.WithFilterDefinition( s =&gt; s.Id, FilterOperator.EqualTo, v =&gt; s =&gt; s.Id == v.First() );
 	///	
 	/// var dataManager = new DataManager()
 	///		.WithDbContext( () => new StudentDbContext( new DbContextOptions() ) )
 	///			.WithDbSet(
 	///				db =&gt; db.Students,
-	///				new FilterChipValidatorService()
-	///					.HasFilterType&lt;int&gt;( "Id", false, 1, 1, FilterOperator.EqualTo )
+	///				new LinqFindByFilterService&lt;Student&gt;()
+	///					.WithFilterType( s =&gt; s.Id, FilterOperator.EqualTo, v =&gt; s =&gt; s.Id == v.First() )
 	///			);
 	/// </code>
 	/// </summary>
@@ -55,24 +53,35 @@ namespace Tendril.EFCore.Extensions {
 		/// <param name="dataSource"></param>
 		/// <param name="getCollection">Function that defines how to get the DbSet from the DbContext</param>
 		/// <param name="findByFilterService">See LinqFindByFilterService class for more information</param>
-		/// <param name="filterChipValidator">If not provided, no filter validation will be performed. 
-		/// See FilterChipValidatorService class for more information</param>
+		/// <param name="getQueryableCollection">Function that defines how to get the DbSet when loading from collection, if null then use getCollection for loading</param>
+		/// <param name="addOverride">Optionally override the Add operation for this collection</param>
+		/// <param name="addRangeOverride">Optionally override the AddRange operation for this collection</param>
+		/// <param name="deleteOverride">Optionally override the Delete operation for this collection</param>
+		/// <param name="executeRawQueryOverride">Optionally override the ExecuteRawQuery operation for this collection</param>
+		/// <param name="updateOverride">Optionally override the Update operation for this collection</param>
 		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
 		public static DataSourceContext<TDataSource> WithDbSet<TModel, TDataSource>(
 			this DataSourceContext<TDataSource> dataSource,
-			Func<TDataSource, DbSet<TModel>> getCollection,
+			GetDbSet<TDataSource, TModel> getCollection,
 			LinqFindByFilterService<TModel> findByFilterService,
-			FilterChipValidatorService<TModel>? filterChipValidator = null
+			GetCollectionQueryable<TDataSource, TModel>? getQueryableCollection = null,
+			AddEntity<TDataSource, TModel>? addOverride = null,
+			AddEntities<TDataSource, TModel>? addRangeOverride = null,
+			DeleteEntity<TDataSource, TModel>? deleteOverride = null,
+			FindByRawQuery<TDataSource, TModel>? executeRawQueryOverride = null,
+			UpdateEntity<TDataSource, TModel>? updateOverride = null
 		) where TDataSource : DbContext, IDisposable where TModel : class {
-			if ( filterChipValidator is null ) {
-				filterChipValidator = new FilterChipValidatorService<TModel>().AllowUndefinedFilters();
-			}
 			var modelType = typeof( TModel );
 			var context = new EFCoreDataCollection<TDataSource, TModel>(
-				filterChipValidator,
 				findByFilterService,
 				dataSource,
-				getCollection
+				getCollection,
+				getQueryableCollection,
+				addOverride,
+				addRangeOverride,
+				deleteOverride,
+				executeRawQueryOverride,
+				updateOverride
 			);
 			dataSource.DataManager.WithDataCollection( context );
 			return dataSource;

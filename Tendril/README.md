@@ -1,4 +1,3 @@
-
 # Tendril
 
 ## About
@@ -6,7 +5,7 @@ Tendril is a Normalized Data Access Layer (DAL) Package.
 This package provides a common CRUD interface for underlying collections of data.
 In addition to this functionality, Tendril also provides a common query language for decoupling consumption of data from the underlying persistence layer.
 This package is intended to be used in conjunction with the corresponding database type packages. These child packages provide functionalities for registering your datasources with Tendril.
-Some of these database specific packages include: Tendril.EFCore, Tendril.InMemory.
+Some of these datasource specific packages include: [Tendril.EFCore](https://www.nuget.org/packages/Tendril.EFCore), [Tendril.InMemory](https://www.nuget.org/packages/Tendril.InMemory).
 
 ## Examples
 For all examples below, we will be using the following entity definition and dbcontext, note this example is also dependent on Tendril.EFCore for bootstrapping the collection to the DataManager.
@@ -22,25 +21,16 @@ public class StudentDbContext : DbContext {
 }
 
 var findByFilterService = new LinqFindByFilterService<Student>()
-	.WithFilterDefinition( "Id", FilterOperator.EqualTo, v => s => s.Id == ( ( int ) v.First() ) )
-	.WithFilterDefinition( "Name", FilterOperator.StartsWith, v => s => s.Name.StartsWith( v.Single() as string ) )
-	.WithFilterDefinition( "Name", FilterOperator.EqualTo, v => s => s.Name == ( v.Single() as string ) )
-	.WithFilterDefinition( "Name", FilterOperator.EndsWith, v => s => s.Name.EndsWith( v.Single() as string ) );
-
-var filterValidator = new FilterChipValidatorService()
-	.HasFilterType<int>( "Id", false, 1, 1, FilterOperator.EqualTo )
-	.HasFilterType<string>(
-		"Name", false, 1, 1,
-		FilterOperator.StartsWith, FilterOperator.EqualTo, FilterOperator.EndsWith
-	);
+	.WithFilterType( s => s.Id, FilterOperator.EqualTo, v => s => s.Id == v.First() )
+	.WithFilterType( s => s.Name, FilterOperator.StartsWith, v => s => s.Name.StartsWith( v.Single() ) )
+	.WithFilterType( s => s.Name, FilterOperator.EqualTo, v => s => s.Name == v.Single() )
+	.WithFilterType( s => s.Name, FilterOperator.EndsWith, v => s => s.Name.EndsWith( v.Single() ) );
 
 var dataManager = new DataManager()
 	.WithDbContext( () => new StudentDbContext( new DbContextOptions() ) )
 		.WithDbSet(
 			db => db.Students,
-			filterValidator.ValidateFilters,
-			async ( dbSet, filter, page, pageSize ) =>
-				await findByFilterService.FindByFilter( dbSet, filter, page, pageSize ).ToListAsync()
+			findByFilterService
 		);
 ```
 ### Create a new student with the name "John Doe"
@@ -54,7 +44,7 @@ var students = new List<Student> {
 	new Student { Name = "John Doe" },
 	new Student { Name = "Jane Doe" }
 };
-await dataManager.CreateRange( students, 2 );
+await dataManager.CreateRange( students );
 ```
 
 ### Insert a student and then change their name
@@ -72,10 +62,10 @@ await dataManager.Delete( student );
 ### Find a student who either has an ID equal to 5, or a name that starts with John and ends with Doe
 ```C#
 var filters = new OrFilterChip(
-	new FilterChip( "Id", FilterOperator.EqualTo, 5 ),
+	new ValueFilterChip<Student, int>( s => s.Id, FilterOperator.EqualTo, 5 ),
 	new AndFilterChip(
-		new FilterChip( "Name", FilterOperator.StartsWith, "John" ),
-		new FilterChip( "Name", FilterOperator.EndsWith, "Doe" )
+		new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.StartsWith, "John" ),
+		new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.EndsWith, "Doe" )
 	)
 );
 var students = await DataManager.FindByFilter<Student>( filters );
