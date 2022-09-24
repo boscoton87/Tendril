@@ -137,19 +137,19 @@ namespace Tendril.Services {
 		/// <summary>
 		/// FindByFilter method built using supplied definitions from fluent interface<br />
 		/// </summary>
-		/// <param name="dbSet">Dataset to be filtered</param>
+		/// <param name="dataSet">Dataset to be filtered</param>
 		/// <param name="filter">Filter containing query criteria</param>
 		/// <param name="page">Page of data to be returned, starting at 0. If null, no pagination will occur</param>
 		/// <param name="pageSize">PageSize of data to be returned. If null, no pagination will occur</param>
 		/// <returns>Dataset with filtering applied to it</returns>
 		/// <exception cref="UnsupportedFilterException"></exception>
-		public IQueryable<TModel> FindByFilter( IQueryable<TModel> dbSet, FilterChip filter, int? page = null, int? pageSize = null ) {
-			var query = dbSet.AsQueryable();
+		public IQueryable<TModel> FindByFilter( IQueryable<TModel> dataSet, FilterChip filter, int? page = null, int? pageSize = null ) {
+			var query = dataSet.AsQueryable();
 			if ( filter is not null ) {
 				var predicate = BuildPredicate( filter );
 				query = query.Where( predicate );
 			}
-			if ( ( page.HasValue && page.Value >= 0 ) && ( pageSize.HasValue && pageSize.Value >= 0 ) ) {
+			if ( page.HasValue && page.Value >= 0 && pageSize.HasValue && pageSize.Value >= 0 ) {
 				query = query.Skip( page.Value * pageSize.Value ).Take( pageSize.Value );
 			}
 			return query;

@@ -1,11 +1,12 @@
-﻿using Tendril.Enums;
+﻿using AutoMapper;
+using Tendril.Enums;
 using Tendril.InMemory.Extensions;
 using Tendril.InMemory.Services;
 using Tendril.Services;
 
-namespace Tendril.Test.Mocks.Models {
+namespace Tendril.InMemory.Test.Mocks.Models {
 	internal static class DataManagerBuilder {
-		public static DataManager BuildDataManager() {
+		public static DataManager BuildDataManager( IMapper mapper ) {
 			var findByFilterService = new LinqFindByFilterService<Student>()
 				.HasDistinctFields()
 				.WithFilterType( s => s.Id, FilterOperator.EqualTo, v => s => s.Id == v.First() )
@@ -29,6 +30,16 @@ namespace Tendril.Test.Mocks.Models {
 			var dataManager = new DataManager();
 			dataManager
 				.WithInMemoryCache()
+					.WithCacheSet(
+						new KeyGeneratorSequential<Student, int>(
+							( k, _ ) => k + 1,
+							s => s.Id,
+							( k, s ) => s.Id = k
+						),
+						findByFilterService,
+						mapper.Map<StudentDto, Student>,
+						mapper.Map<Student, StudentDto>
+					)
 					.WithCacheSet(
 						new KeyGeneratorSequential<Student, int>(
 							( k, _ ) => k + 1,

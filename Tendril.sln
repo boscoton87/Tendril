@@ -17,6 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tendril.InMemory", "Tendril
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tendril.EFCore", "Tendril.EFCore\Tendril.EFCore.csproj", "{38B36341-E596-43C3-88C8-A5D0D8705079}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tendril.EFCore.Test", "Tendril.EFCore.Test\Tendril.EFCore.Test.csproj", "{6266722D-9FC8-47E9-8BA7-696E0B2434DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{592B42F9-87AA-4795-B8C7-F1ACC9A1869D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tendril.InMemory.Test", "Tendril.InMemory.Test\Tendril.InMemory.Test.csproj", "{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,9 +45,22 @@ Global
 		{38B36341-E596-43C3-88C8-A5D0D8705079}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B36341-E596-43C3-88C8-A5D0D8705079}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38B36341-E596-43C3-88C8-A5D0D8705079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6266722D-9FC8-47E9-8BA7-696E0B2434DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6266722D-9FC8-47E9-8BA7-696E0B2434DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6266722D-9FC8-47E9-8BA7-696E0B2434DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6266722D-9FC8-47E9-8BA7-696E0B2434DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5638E642-6FF3-432F-9E22-F0AF9158B618} = {592B42F9-87AA-4795-B8C7-F1ACC9A1869D}
+		{6266722D-9FC8-47E9-8BA7-696E0B2434DE} = {592B42F9-87AA-4795-B8C7-F1ACC9A1869D}
+		{27FDEBAF-ED67-437D-92AB-FC5EEB86AD4D} = {592B42F9-87AA-4795-B8C7-F1ACC9A1869D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BDE370-5991-4AE6-B778-7EB79451C966}

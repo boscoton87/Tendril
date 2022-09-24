@@ -1,4 +1,5 @@
-﻿using Tendril.InMemory.Services;
+﻿using Tendril.Delegates;
+using Tendril.InMemory.Services;
 using Tendril.InMemory.Services.Interfaces;
 using Tendril.Services;
 
@@ -64,6 +65,41 @@ namespace Tendril.InMemory.Extensions {
 				cache[ modelType ]
 			);
 			dataSource.DataManager.WithDataCollection( context );
+			return dataSource;
+		}
+
+		/// <summary>
+		/// Register a collection with the given DataSourceContext
+		/// </summary>
+		/// <typeparam name="TView">The type of model presented to consumers of this interface</typeparam>
+		/// <typeparam name="TModel">The type of model used internally for CRUD operations</typeparam>
+		/// <typeparam name="TKey">The type of key</typeparam>
+		/// <param name="dataSource"></param>
+		/// <param name="keyGenerator">Service class which defines how keys are managed on the given model type</param>
+		/// <param name="findByFilterService">See LinqFindByFilterService class for more information</param>
+		/// <param name="convertToModel">Function to convert from the TView to TModel types</param>
+		/// <param name="convertToView">Function to convert from the TModel to TView types</param>
+		/// <returns>Returns this instance of the class to be chained with Fluent calls of this method</returns>
+		/// <exception cref="NotSupportedException"></exception>
+		public static DataSourceContext<InMemoryDataSource> WithCacheSet<TView, TModel, TKey>(
+			this DataSourceContext<InMemoryDataSource> dataSource,
+			IKeyGenerator<TModel, TKey> keyGenerator,
+			LinqFindByFilterService<TModel> findByFilterService,
+			ConvertTo<TView, TModel> convertToModel,
+			ConvertTo<TModel, TView> convertToView
+		)
+			where TView : class
+			where TModel : class
+			where TKey : IComparable {
+			var modelType = typeof( TView );
+			var cache = dataSource.GetDataSource().Cache;
+			cache.Add( modelType, new Dictionary<IComparable, object>() );
+			var context = new InMemoryDataCollection<TModel, TKey>(
+				findByFilterService,
+				keyGenerator,
+				cache[ modelType ]
+			);
+			dataSource.DataManager.WithDataCollection( context, convertToModel, convertToView );
 			return dataSource;
 		}
 	}
