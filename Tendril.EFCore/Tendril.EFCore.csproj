@@ -14,7 +14,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Fixed issue where Navigation Properties weren't loading when calling FindByFilter</PackageReleaseNotes>
+    <PackageReleaseNotes>Added CountByFilter support
+Added ability to override most operations for use case specific logic</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -12,10 +12,8 @@
     <PackageProjectUrl>https://github.com/boscoton87/Tendril</PackageProjectUrl>
     <RepositoryUrl>https://github.com/boscoton87/Tendril</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Changed License type to MIT,
-Reduced complexity of bootstrapping.
-Added type checking to FilterChips and bootstrap extension methods.
-Improved XML Comments</PackageReleaseNotes>
+    <PackageReleaseNotes>Added CountByFilter support
+Added filter validation to LinqFindByFilterService to reduce bootstrap boilerplate</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
