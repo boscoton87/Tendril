@@ -154,6 +154,37 @@ namespace Tendril.Services {
 		}
 
 		/// <summary>
+		/// <b>Example Usage:</b><br />
+		/// <code>
+		/// // Get count of students who's names start with the letter <b>A</b> or <b>B</b><br />
+		/// var studentCount = dataManager.CountByFilter&lt;Student&gt;(
+		///		new OrFilterChip(
+		///			new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.StartsWith, "A" ),	
+		///			new ValueFilterChip&lt;Student, string&gt;( s =&gt; s.Name, FilterOperator.StartsWith, "B" )
+		///		)
+		/// );
+		/// </code>
+		/// </summary>
+		/// <typeparam name="TView">The type of model</typeparam>
+		/// <param name="filter">The filter to use for the query</param>
+		/// <param name="page">The page of data to be returned, starting at 0. If null, no pagination will occur</param>
+		/// <param name="pageSize">PageSize of data to be returned. If null, no pagination will occur</param>
+		/// <returns>Resulting count of records</returns>
+		/// <exception cref="UnsupportedFilterException"></exception>
+		public async Task<long> CountByFilter<TView>(
+			FilterChip filter = null,
+			int? page = null,
+			int? pageSize = null
+		) where TView : class {
+			var collectionContext = GetCollectionContext<TView>();
+			var result = await collectionContext.CountByFilter<TView>( filter, page, pageSize );
+			if ( !result.IsSuccess ) {
+				throw new UnsupportedFilterException( result.Message );
+			}
+			return result.Data;
+		}
+
+		/// <summary>
 		/// Execute a raw query against the underlying data collection<br />
 		/// <b>Note:</b>This operation should only be performed for performance critical code,<br />
 		/// or if the required operation is not possible using the other CRUD methods, as this exposes implementation details<br />

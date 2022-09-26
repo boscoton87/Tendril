@@ -2,6 +2,7 @@
 using Tendril.Delegates;
 using Tendril.EFCore.Delegates;
 using Tendril.EFCore.Services;
+using Tendril.Models;
 using Tendril.Services;
 
 namespace Tendril.EFCore.Extensions {
@@ -72,7 +73,6 @@ namespace Tendril.EFCore.Extensions {
 			FindByRawQuery<TDataSource, TModel>? executeRawQueryOverride = null,
 			UpdateEntity<TDataSource, TModel>? updateOverride = null
 		) where TDataSource : DbContext, IDisposable where TModel : class {
-			var modelType = typeof( TModel );
 			var context = new EFCoreDataCollection<TDataSource, TModel>(
 				findByFilterService,
 				dataSource,
@@ -122,7 +122,6 @@ namespace Tendril.EFCore.Extensions {
 			where TView : class
 			where TModel : class
 			where TDataSource : DbContext, IDisposable {
-			var modelType = typeof( TModel );
 			var context = new EFCoreDataCollection<TDataSource, TModel>(
 				findByFilterService,
 				dataSource,

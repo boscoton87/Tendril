@@ -104,9 +104,34 @@ namespace Tendril.Services {
 					Message = validatedFilters.Message,
 					Data = null
 				};
-			}
+			} 
 			var results = await _dataCollection.FindByFilter( filter, page, pageSize );
 			return new ValidationDataResult<IEnumerable<TEntity>> { Data = results.Select( v => _convertToView( v ) as TEntity ).ToList() };
+		}
+
+		/// <summary>
+		/// Execute a count query with custom conditions against the underlying datasource
+		/// </summary>
+		/// <typeparam name="TEntity">The type of entity</typeparam>
+		/// <param name="filter">The filter to apply</param>
+		/// <param name="page">The page of data to return, if null then pagination will not occur</param>
+		/// <param name="pageSize">The page size of data to return, if null then pagination will not occur</param>
+		/// <returns>ValidationDataResult containing the results of the query execution</returns>
+		public async Task<ValidationDataResult<long>> CountByFilter<TEntity>(
+			FilterChip filter,
+			int? page = null,
+			int? pageSize = null
+		) where TEntity : class {
+			var validatedFilters = _dataCollection.ValidateFilters( filter );
+			if ( !validatedFilters.IsSuccess ) {
+				return new ValidationDataResult<long> {
+					IsSuccess = false,
+					Message = validatedFilters.Message,
+					Data = 0
+				};
+			}
+			var results = await _dataCollection.CountByFilter( filter, page, pageSize );
+			return new ValidationDataResult<long> { Data = results };
 		}
 	}
 }

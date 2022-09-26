@@ -54,13 +54,26 @@ namespace Tendril.Services.Interfaces {
 		public ValidationResult ValidateFilters( FilterChip filter );
 
 		/// <summary>
-		/// Execute a query, using the supplied filters, against the underlying datasource
+		/// Execute a count query, using the supplied filters, against the underlying datasource
 		/// </summary>
 		/// <param name="filter">The filter to apply</param>
 		/// <param name="page">The page of data to return, if null then pagination will not occur</param>
 		/// <param name="pageSize">The page size of data to return, if null then pagination will not occur</param>
 		/// <returns>ValidationDataResult containing the results of the query execution</returns>
 		public Task<IEnumerable<TModel>> FindByFilter(
+			FilterChip filter,
+			int? page = null,
+			int? pageSize = null
+		);
+
+		/// <summary>
+		/// Execute a query, using the supplied filters, against the underlying datasource
+		/// </summary>
+		/// <param name="filter">The filter to apply</param>
+		/// <param name="page">The page of data to return, if null then pagination will not occur</param>
+		/// <param name="pageSize">The page size of data to return, if null then pagination will not occur</param>
+		/// <returns>ValidationDataResult containing the results of the query execution</returns>
+		public Task<long> CountByFilter(
 			FilterChip filter,
 			int? page = null,
 			int? pageSize = null

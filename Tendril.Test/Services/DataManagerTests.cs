@@ -154,6 +154,22 @@ namespace Tendril.Test.Services {
 		}
 
 		[Test]
+		public async Task TestCountByFilter() {
+			var filter = new ValueFilterChip<Student, string>( s => s.Name, FilterOperator.EqualTo, "John" );
+			await DataManager.CountByFilter<Student>( filter, 1, 2 );
+			DataCollection.AssertCallMade( 0, 2, "ValidateFilters", filter );
+			DataCollection.AssertCallMade( 1, 2, "CountByFilter", filter, 1, 2 );
+		}
+
+		[Test]
+		public async Task TestCountByFilterDto() {
+			var filter = new ValueFilterChip<StudentDto, string>( s => s.Name, FilterOperator.EqualTo, "John" );
+			await DataManager.CountByFilter<StudentDto>( filter, 1, 2 );
+			DataCollectionMapped.AssertCallMade( 0, 2, "ValidateFilters", filter );
+			DataCollectionMapped.AssertCallMade( 1, 2, "CountByFilter", filter, 1, 2 );
+		}
+
+		[Test]
 		public async Task TestExecuteRawQuery() {
 			await DataManager.ExecuteRawQuery<Student>( "SOME SQL QUERY", "foo" );
 			DataCollection.AssertCallMade( 0, 1, "ExecuteRawQuery", "SOME SQL QUERY", new object[] { "foo" } );

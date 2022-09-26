@@ -62,6 +62,17 @@ namespace Tendril.InMemory.Services {
 			);
 		}
 
+		public Task<long> CountByFilter( FilterChip filter, int? page = null, int? pageSize = null ) {
+			return Task.FromResult(
+					_findByFilterService.FindByFilter(
+					_collection.Values.Select( v => ( TModel ) v ).AsQueryable(),
+					filter,
+					page,
+					pageSize
+				).LongCount()
+			);
+		}
+
 		public Task<TModel> Update( TModel entity ) {
 			var key = _keyGenerator.GetKeyFromModel( entity );
 			_ = _collection.Keys.Single( k => k.CompareTo( key ) == 0 );

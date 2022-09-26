@@ -1,6 +1,7 @@
 ﻿using Tendril.Delegates;
 using Tendril.InMemory.Services;
 using Tendril.InMemory.Services.Interfaces;
+using Tendril.Models;
 using Tendril.Services;
 
 namespace Tendril.InMemory.Extensions {
@@ -55,15 +56,10 @@ namespace Tendril.InMemory.Extensions {
 			this DataSourceContext<InMemoryDataSource> dataSource,
 			IKeyGenerator<TModel, TKey> keyGenerator,
 			LinqFindByFilterService<TModel> findByFilterService
-		) where TModel : class where TKey : IComparable {
-			var modelType = typeof( TModel );
-			var cache = dataSource.GetDataSource().Cache;
-			cache.Add( modelType, new Dictionary<IComparable, object>() );
-			var context = new InMemoryDataCollection<TModel, TKey>(
-				findByFilterService,
-				keyGenerator,
-				cache[ modelType ]
-			);
+		)
+			where TModel : class
+			where TKey : IComparable {
+			var context = CreateDataCollection( dataSource, keyGenerator, findByFilterService );
 			dataSource.DataManager.WithDataCollection( context );
 			return dataSource;
 		}
@@ -91,16 +87,29 @@ namespace Tendril.InMemory.Extensions {
 			where TView : class
 			where TModel : class
 			where TKey : IComparable {
-			var modelType = typeof( TView );
+			var context = CreateDataCollection( dataSource, keyGenerator, findByFilterService );
+			dataSource.DataManager.WithDataCollection( context, convertToModel, convertToView );
+			return dataSource;
+		}
+
+		private static InMemoryDataCollection<TModel, TKey> CreateDataCollection<TModel, TKey>(
+			DataSourceContext<InMemoryDataSource> dataSource, 
+			IKeyGenerator<TModel, TKey> keyGenerator,
+			LinqFindByFilterService<TModel> findByFilterService
+		)
+			where TModel : class
+			where TKey : IComparable {
+			var modelType = typeof( TModel );
 			var cache = dataSource.GetDataSource().Cache;
-			cache.Add( modelType, new Dictionary<IComparable, object>() );
+			if ( !cache.ContainsKey( modelType ) ) {
+				cache.Add( modelType, new Dictionary<IComparable, object>() );
+			}
 			var context = new InMemoryDataCollection<TModel, TKey>(
 				findByFilterService,
 				keyGenerator,
 				cache[ modelType ]
 			);
-			dataSource.DataManager.WithDataCollection( context, convertToModel, convertToView );
-			return dataSource;
+			return context;
 		}
 	}
 }

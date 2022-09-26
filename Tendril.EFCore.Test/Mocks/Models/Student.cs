@@ -1,5 +1,8 @@
-﻿namespace Tendril.InMemory.Test.Mocks.Models {
-	internal class StudentDto {
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Tendril.EFCore.Test.Mocks.Models {
+	internal class Student {
+		[Key]
 		public int Id { get; set; }
 
 		public string Name { get; set; } = string.Empty;

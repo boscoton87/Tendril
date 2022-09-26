@@ -1,17 +1,22 @@
 ﻿using NUnit.Framework;
 using Tendril.Services;
-using Tendril.InMemory.Test.Mocks.Models;
+using Tendril.EFCore.Test.Mocks.Models;
 using Tendril.Models;
 using Tendril.Enums;
 using Tendril.Exceptions;
 using AutoMapper;
+using Microsoft.Data.Sqlite;
 
-namespace Tendril.InMemory.Test.Extensions {
+namespace Tendril.EFCore.Test.Extensions {
 	[TestFixture]
-	public class InMemoryRegistrationExtensionsTests {
-		public InMemoryRegistrationExtensionsTests() {
+	public class EfCoreRegistrationExtensionsTests {
+		public EfCoreRegistrationExtensionsTests() {
 			DataManager = new DataManager();
 		}
+
+		private string ConnectionString { get; } = "Data Source=TestDb;Mode=Memory;Cache=Shared";
+
+		private SqliteConnection? Connection { get; set; }
 
 		private DataManager DataManager { get; set; }
 
@@ -29,7 +34,18 @@ namespace Tendril.InMemory.Test.Extensions {
 
 		[SetUp]
 		public void Initialize() {
-			DataManager = DataManagerBuilder.BuildDataManager( Mapper! );
+			Connection = new SqliteConnection( ConnectionString );
+			Connection.Open();
+			using var dbContext = new StudentDbContext( ConnectionString );
+			dbContext.Database.EnsureCreated();
+			DataManager = DataManagerBuilder.BuildDataManager( Mapper!, ConnectionString );
+		}
+
+		[TearDown]
+		public void Cleanup() {
+			Connection!.Close();
+			using var dbContext = new StudentDbContext( ConnectionString );
+			dbContext.Database.EnsureDeleted();
 		}
 
 		private async Task InsertStudentDtos( params string[] names ) {
@@ -219,19 +235,25 @@ namespace Tendril.InMemory.Test.Extensions {
 		}
 
 		[Test]
-		public void TestExecuteRawQueryThrows() {
-			Assert.CatchAsync<NotSupportedException>(
-				async () => await DataManager.ExecuteRawQuery<Student>( "SOME SQL QUERY", "foo" )
-			);
-			Assert.CatchAsync<NotSupportedException>(
-				async () => await DataManager.ExecuteRawQuery<StudentDto>( "SOME SQL QUERY", "foo" )
-			);
+		public async Task TestExecuteRawQuery() {
+			var names = new string[] { "John Doe", "Jane Doe", "John Smith", "Jane Smith" };
+			await InsertStudents( names );
+			var results = await DataManager.ExecuteRawQuery<Student>( "SELECT * FROM Students s WHERE s.Name = @Name", new SqliteParameter( "Name", "Jane Doe" ) );
+			AssertStudentsInResult( results, names[ 1 ] );
+		}
+
+		[Test]
+		public async Task TestExecuteRawQueryDto() {
+			var names = new string[] { "John Doe", "Jane Doe", "John Smith", "Jane Smith" };
+			await InsertStudentDtos( names );
+			var results = await DataManager.ExecuteRawQuery<StudentDto>( "SELECT * FROM Students s WHERE s.Name = @Name", new SqliteParameter( "Name", "Jane Doe" ) );
+			AssertStudentsInResult( results, names[ 1 ] );
 		}
 
 		[Test]
 		public void TestUnsupportedFilter() {
 			Assert.CatchAsync<UnsupportedFilterException>(
-				async () => await DataManager.FindByFilter<StudentDto>( new ValueFilterChip<StudentDto, string>( s => s.Name, FilterOperator.LessThan, "foo" ) )
+				() => DataManager!.FindByFilter<StudentDto>( new ValueFilterChip<StudentDto, string>( s => s.Name, FilterOperator.LessThan, "foo" ) )
 			);
 		}
 	}

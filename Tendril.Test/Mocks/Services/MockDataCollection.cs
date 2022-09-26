@@ -63,6 +63,11 @@ namespace Tendril.Test.Mocks.Services {
 			return Task.FromResult( new List<Student> { }.AsEnumerable() );
 		}
 
+		public Task<long> CountByFilter( FilterChip filter, int? page = null, int? pageSize = null ) {
+			AddCall( "CountByFilter", filter, page, pageSize );
+			return Task.FromResult( 1L );
+		}
+
 		public Task<Student> Update( Student entity ) {
 			AddCall( "Update", entity );
 			return Task.FromResult( entity );
@@ -111,7 +116,7 @@ namespace Tendril.Test.Mocks.Services {
 					return ( string ) argA == ( string ) argB;
 				case Type type when type == typeof( int ):
 					return ( int ) argA == ( int ) argB;
-				case Type type when type.GetTypeInheritance().Any(t => t == typeof( FilterChip ) ):
+				case Type type when type.GetTypeInheritance().Any( t => t == typeof( FilterChip ) ):
 					return ( FilterChip ) argA == ( FilterChip ) argB;
 				case Type type when type == typeof( object[] ):
 					var argListA = argA as object[];

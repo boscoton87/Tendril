@@ -55,5 +55,19 @@ namespace Tendril.Services.Interfaces {
 			int? page = null,
 			int? pageSize = null
 		) where TEntity : class;
+
+		/// <summary>
+		/// Execute a count query with custom conditions against the underlying datasource
+		/// </summary>
+		/// <typeparam name="TEntity">The type of entity</typeparam>
+		/// <param name="filter">The filter to apply</param>
+		/// <param name="page">The page of data to return, if null then pagination will not occur</param>
+		/// <param name="pageSize">The page size of data to return, if null then pagination will not occur</param>
+		/// <returns>ValidationDataResult containing the results of the query execution</returns>
+		public Task<ValidationDataResult<long>> CountByFilter<TEntity>(
+			FilterChip filter,
+			int? page = null,
+			int? pageSize = null
+		) where TEntity : class;
 	}
 }

@@ -94,6 +94,12 @@ namespace Tendril.EFCore.Services {
 			return await _findByFilterService.FindByFilter( dbSet, filter, page, pageSize ).ToListAsync();
 		}
 
+		public async Task<long> CountByFilter( FilterChip filter, int? page = null, int? pageSize = null ) {
+			using var dbContext = _dataSource.GetDataSource();
+			var dbSet = _getCollectionAsQueryable( dbContext );
+			return await _findByFilterService.FindByFilter( dbSet, filter, page, pageSize ).LongCountAsync();
+		}
+
 		public async Task<TEntity> Update( TEntity entity ) {
 			using var dbContext = _dataSource.GetDataSource();
 			if ( _updateOverride is not null ) {

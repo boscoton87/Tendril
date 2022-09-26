@@ -1,4 +1,4 @@
-﻿namespace Tendril.InMemory.Test.Mocks.Models {
+﻿namespace Tendril.EFCore.Test.Mocks.Models {
 	internal class StudentDto {
 		public int Id { get; set; }
 
